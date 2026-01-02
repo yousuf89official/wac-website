@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String   // Specified as 'password' for easy access
+  name      String
+  role      String   @default("admin")
+}
+
+model BrandConfig {
+  id           Int    @id @default(1)
+  name         String
+  tagline      String
+  logo         String
+  defaultEmail String
+  domain       String
+  heroImage    String?
+}
+
+model ThemeConfig {
+  id              Int    @id @default(1)
+  primaryColor    String @default("#00f0ff")
+  secondaryColor  String @default("#b000ff")
+  accentColor     String @default("#ff006e")
+  backgroundColor String @default("#0a0a0a")
+  cardBackground  String @default("#1a1a1a")
+  sectionPadding  String @default("2rem")
+}
+
+model SectionContent {
+  id          Int    @id @default(autoincrement())
+  sectionId   String @unique // e.g., 'hero', 'about', 'services'
+  badge       String?
+  headline    String
+  subheadline String?
+  description String?
+}
+
+model Service {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  icon        String
+  order       Int    @default(0)
+}
+
+model ProcessStep {
+  id          Int    @id @default(autoincrement())
+  number      String
+  title       String
+  description String
+  color       String
+  order       Int    @default(0)
+}
+
+model Value {
+  id          Int    @id @default(autoincrement())
+  title       String
+  description String
+  icon        String // SVG name or path
+  order       Int    @default(0)
+}
+
+model Testimonial {
+  id       Int    @id @default(autoincrement())
+  quote    String
+  author   String
+  role     String
+  company  String
+  image    String
+  results  String
+  order    Int    @default(0)
+}
+
+model Stat {
+  id    Int    @id @default(autoincrement())
+  value String
+  label String
+  order Int    @default(0)
+}
+
+model NavLink {
+  id    Int    @id @default(autoincrement())
+  label String
+  href  String
+  order Int    @default(0)
+}
+
+model SocialLink {
+  id       Int    @id @default(autoincrement())
+  platform String
+  url      String
+  icon     String
+}
+
+model Client {
+  id    Int    @id @default(autoincrement())
+  name  String
+  logo  String
+  order Int    @default(0)
+}
+
+
+model GlobalSeo {
+  id              Int      @id @default(autoincrement())
+  siteName        String   @default("Collaborative Assistant")
+  siteDescription String   @default("Turning Insights into Impact")
+  separator       String   @default("|")
+  defaultImage    String?
+  twitterHandle   String?
+  facebookAppId   String?
+  updatedAt       DateTime @updatedAt
+}
+
+model ChatSession {
+  id        String        @id @default(uuid())
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  leadId    Int?
+  lead      Lead?         @relation(fields: [leadId], references: [id])
+  userIp    String?
+  userAgent String?
+  messages  ChatMessage[]
+}
+
+model ChatMessage {
+  id        String      @id @default(uuid())
+  sessionId String
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      String // 'user', 'assistant', 'system'
+  content   String
+  createdAt DateTime    @default(now())
+}
+
+model CaseStudy {
+  id              Int    @id @default(autoincrement())
+  slug            String @unique
+  title           String
+  description     String
+  client          String
+  image           String
+  category        String
+  results         String // JSON string
+  order           Int    @default(0)
+  isFeatured      Boolean @default(false)
+  metaTitle       String?
+  metaDescription String?
+  focusKeyword    String?
+  canonicalUrl    String?
+}
+
+model BlogPost {
+  id              Int      @id @default(autoincrement())
+  slug            String   @unique
+  title           String
+  excerpt         String
+  content         String
+  image           String
+  author          String
+  date            DateTime @default(now())
+  isPublished     Boolean @default(true)
+  metaTitle       String?
+  metaDescription String?
+  focusKeyword    String?
+  canonicalUrl    String?
+}
+
+model Lead {
+  id         Int      @id @default(autoincrement())
+  name       String
+  email      String
+  company    String?
+  message    String
+  lead_type  String
+  status     String   @default("new")
+  created_at DateTime @default(now())
+  chatSessions ChatSession[]
+}
+
+model VisitorSession {
+  id        String   @id @default(uuid())
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  events    VisitorEvent[]
+  impressions PopupImpression[]
+}
+
+model VisitorEvent {
+  id        Int      @id @default(autoincrement())
+  sessionId String
+  session   VisitorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  type      String   // 'pageview', 'scroll', 'click', 'popup_dismiss', 'popup_subscribe'
+  data      String?  // JSON string for metadata (url, scrollDepth, etc.)
+  createdAt DateTime @default(now())
+}
+
+model PopupImpression {
+  id        Int      @id @default(autoincrement())
+  sessionId String
+  session   VisitorSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  campaign  String   // e.g., 'newsletter'
+  title     String?  // Title shown
+  message   String?  // Message shown
+  outcome   String   // 'dismissed', 'subscribed', 'ignored'
+  createdAt DateTime @default(now())
+}
