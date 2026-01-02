@@ -27,6 +27,11 @@ const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#0a0a0a]">
+      {process.env.NEXT_PUBLIC_STAGING === 'true' && (
+        <div className="fixed top-0 left-0 right-0 z-[100] bg-yellow-500 text-black text-[10px] font-bold py-1 text-center uppercase tracking-widest shadow-lg">
+          Staging Environment - Internal Use Only
+        </div>
+      )}
       <Header />
 
       <main>
