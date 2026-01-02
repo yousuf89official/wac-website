@@ -19,16 +19,10 @@ export async function GET() {
             data: {
                 name: 'We Are Collaborative',
                 tagline: 'Empowering Brands Through Strategic Collaboration',
-                description: 'We Are Collaborative is a premier marketing agency specializing in integrated digital strategies, creative campaigns, and data-driven solutions.',
-                email: 'hello@wearecollaborative.net',
-                phone: '+1 (555) 123-4567',
-                address: '123 Innovation Street, Creative District, NY 10001',
-                socialLinks: JSON.stringify({
-                    facebook: 'https://facebook.com/wearecollaborative',
-                    twitter: 'https://twitter.com/wearecollaborative',
-                    instagram: 'https://instagram.com/wearecollaborative',
-                    linkedin: 'https://linkedin.com/company/wearecollaborative'
-                })
+                logo: '/logo.png', // Placeholder
+                defaultEmail: 'hello@wearecollaborative.net',
+                domain: 'wearecollaborative.net',
+                heroImage: '/hero-bg.jpg'
             }
         });
 
@@ -38,19 +32,19 @@ export async function GET() {
                 primaryColor: '#6366f1',
                 secondaryColor: '#8b5cf6',
                 accentColor: '#ec4899',
-                fontFamily: 'Inter, system-ui, sans-serif',
-                customCSS: ''
+                backgroundColor: '#0a0a0a',
+                cardBackground: '#1a1a1a',
+                sectionPadding: '2rem'
             }
         });
 
-        // Seed Hero Section
-        await prisma.heroSection.create({
+        // Seed Hero Section (as SectionContent)
+        await prisma.sectionContent.create({
             data: {
+                sectionId: 'hero',
                 headline: 'Transform Your Brand with Strategic Collaboration',
                 subheadline: 'We partner with forward-thinking brands to create impactful marketing campaigns that drive real results.',
-                ctaText: 'Start Your Journey',
-                ctaLink: '#contact',
-                backgroundImage: '/hero-bg.jpg'
+                badge: 'Welcome'
             }
         });
 
@@ -92,18 +86,19 @@ export async function GET() {
         }
 
         // Seed Case Studies
-        const caseStudy = await prisma.caseStudy.create({
+        await prisma.caseStudy.create({
             data: {
                 title: 'Digital Transformation for TechCorp',
                 slug: 'techcorp-digital-transformation',
-                excerpt: 'How we helped TechCorp achieve 300% growth in digital engagement.',
-                content: 'Full case study content here...',
-                featuredImage: '/case-studies/techcorp.jpg',
-                clientName: 'TechCorp',
-                industry: 'Technology',
-                services: 'Digital Strategy, Creative Campaigns',
-                results: '300% increase in engagement, 150% ROI',
-                published: true,
+                description: 'How we helped TechCorp achieve 300% growth in digital engagement.',
+                image: '/case-studies/techcorp.jpg',
+                client: 'TechCorp',
+                category: 'Technology',
+                results: JSON.stringify({
+                    engagement: '300% increase',
+                    roi: '150%'
+                }),
+                isFeatured: true,
                 order: 1
             }
         });
@@ -115,10 +110,10 @@ export async function GET() {
                 slug: 'future-digital-marketing-2024',
                 excerpt: 'Exploring the trends that will shape digital marketing in the coming year.',
                 content: 'Full blog post content here...',
-                featuredImage: '/blog/future-marketing.jpg',
+                image: '/blog/future-marketing.jpg',
                 author: 'Marketing Team',
-                published: true,
-                publishedAt: new Date()
+                isPublished: true,
+                date: new Date()
             }
         });
 
