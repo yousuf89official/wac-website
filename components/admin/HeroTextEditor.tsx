@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import NeonButton from '../ui/NeonButton';
 import { useGlobalContent } from '@/hooks/useContent';
-import { useNotification } from '@/context/NotificationContext';
+import { useNotification } from '@/contexts/NotificationContext';
 
 const HeroTextEditor: React.FC = () => {
     const { data: globalContent, refetch } = useGlobalContent();

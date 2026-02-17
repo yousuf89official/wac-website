@@ -1,20 +1,29 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
+import { themeUpdateSchema } from '@/lib/validations';
 
 export async function PUT(req: Request) {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+
     try {
-        const body = await req.json();
+        const raw = await req.json();
+        const parsed = themeUpdateSchema.safeParse(raw);
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 });
+        }
         const theme = await prisma.themeConfig.upsert({
             where: { id: 1 },
-            update: body,
+            update: parsed.data,
             create: {
                 id: 1,
-                primaryColor: body.primaryColor || '#00f0ff',
-                secondaryColor: body.secondaryColor || '#b000ff',
-                accentColor: body.accentColor || '#ff006e',
-                backgroundColor: body.backgroundColor || '#0a0a0a',
-                cardBackground: body.cardBackground || '#1a1a1a',
-                sectionPadding: body.sectionPadding || '2rem'
+                primaryColor: parsed.data.primaryColor || '#00f0ff',
+                secondaryColor: parsed.data.secondaryColor || '#b000ff',
+                accentColor: parsed.data.accentColor || '#ff006e',
+                backgroundColor: parsed.data.backgroundColor || '#0a0a0a',
+                cardBackground: parsed.data.cardBackground || '#1a1a1a',
+                sectionPadding: parsed.data.sectionPadding || '2rem'
             }
         });
         return NextResponse.json(theme);

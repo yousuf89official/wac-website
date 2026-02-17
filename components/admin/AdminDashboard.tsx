@@ -6,7 +6,7 @@ import ContentManager from './ContentManager';
 import HeroTextEditor from './HeroTextEditor';
 import NeonButton from '../ui/NeonButton';
 import { useGlobalContent, useUpdateTheme } from '@/hooks/useContent';
-import { useNotification } from '@/context/NotificationContext';
+import { useNotification } from '@/contexts/NotificationContext';
 
 interface Lead {
   id: number;

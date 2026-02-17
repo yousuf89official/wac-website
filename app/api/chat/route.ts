@@ -16,7 +16,6 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-    console.log('--- CHAT API REQUEST START ---');
     try {
         const { messages: rawMessages } = await req.json();
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim();
@@ -50,14 +49,11 @@ export async function POST(req: Request) {
                 return true;
             });
 
-        console.log('Sending to Gemini:', JSON.stringify(messages));
-
         const result = await streamText({
             model: google('gemini-flash-latest'),
             messages: messages,
         });
 
-        console.log('Stream initialized successfully');
         return result.toTextStreamResponse();
 
     } catch (error: any) {

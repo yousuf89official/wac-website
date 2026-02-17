@@ -1,7 +1,8 @@
 {
-  "name": "vite_react_shadcn_ts",
+  "name": "wac-website",
+  "description": "We Are Collaborative - Modern marketing agency website",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "next dev --turbo",
@@ -9,7 +10,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:push": "npx prisma db push",
-    "db:seed": "node prisma/seed.cjs"
+    "db:seed": "node prisma/seed.cjs",
+    "db:hash-passwords": "npx tsx scripts/hash-passwords.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.2",
@@ -49,6 +51,7 @@
     "@types/uuid": "^10.0.0",
     "ai": "^6.0.5",
     "axios": "^1.13.2",
+    "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
@@ -58,6 +61,7 @@
     "framer-motion": "^12.23.26",
     "highlight.js": "^11.9.0",
     "input-otp": "^1.2.4",
+    "jose": "^6.1.3",
     "lucide-react": "^0.462.0",
     "marked": "^12.0.1",
     "next": "latest",
@@ -79,6 +83,7 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.19.3",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",

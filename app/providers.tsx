@@ -6,7 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import DynamicThemeProvider from "@/components/DynamicThemeProvider";
-import { NotificationProvider } from "@/context/NotificationContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import { HelmetProvider } from 'react-helmet-async';
 // import ErrorBoundary from '@/components/ErrorBoundary'; // Next.js uses error.tsx, but we can reuse for component level if needed. 
 // Skipping manual ErrorBoundary in providers for now, relying on Global Error.

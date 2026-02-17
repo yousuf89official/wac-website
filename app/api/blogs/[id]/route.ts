@@ -1,13 +1,22 @@
 import prisma from '@/lib/prisma';
 import { NextResponse } from 'next/server';
+import { requireAuth } from '@/lib/auth';
+import { blogUpdateSchema } from '@/lib/validations';
 
 export async function PUT(req: Request, props: { params: Promise<{ id: string }> }) {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+
     const params = await props.params;
     try {
-        const body = await req.json();
+        const raw = await req.json();
+        const parsed = blogUpdateSchema.safeParse(raw);
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }, { status: 400 });
+        }
         const post = await prisma.blogPost.update({
             where: { id: parseInt(params.id) },
-            data: body
+            data: parsed.data
         });
         return NextResponse.json(post);
     } catch (error: any) {
@@ -16,6 +25,9 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
 }
 
 export async function DELETE(req: Request, props: { params: Promise<{ id: string }> }) {
+    const auth = await requireAuth();
+    if (auth instanceof NextResponse) return auth;
+
     const params = await props.params;
     try {
         await prisma.blogPost.delete({ where: { id: parseInt(params.id) } });

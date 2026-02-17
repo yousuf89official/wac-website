@@ -38,18 +38,15 @@ const ChatWidget: React.FC = () => {
             }
         ] as UIMessage[],
         onFinish: (message) => {
-            console.log('[ChatWidget] Stream finished:', message);
         },
         onError: (error) => {
             console.error('[ChatWidget] Stream error:', error);
         }
     });
 
-    // Monitor stream start via status change
+    // Monitor stream status
     useEffect(() => {
-        if (status === 'streaming') {
-            console.log('[ChatWidget] Stream started (status change)');
-        }
+        // Stream status is available for reactive updates
     }, [status]);
 
     const isLoading = status === 'streaming' || status === 'submitted';

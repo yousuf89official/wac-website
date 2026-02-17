@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import api from '@/lib/api';
 import NeonButton from '../ui/NeonButton';
 import { Pencil, Trash2, Plus, X, Loader2 } from 'lucide-react';
-import { useNotification } from '@/context/NotificationContext';
+import { useNotification } from '@/contexts/NotificationContext';
 
 interface FieldConfig {
     key: string;

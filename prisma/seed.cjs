@@ -1,5 +1,6 @@
 require('dotenv').config();
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
@@ -19,13 +20,14 @@ async function main() {
     await prisma.socialLink.deleteMany();
     await prisma.stat.deleteMany();
 
-    // 1. User
+    // 1. User (password is hashed with bcrypt)
+    const hashedPassword = bcrypt.hashSync('password', 12);
     await prisma.user.upsert({
         where: { email: 'yousuf@wearecollaborative.net' },
         update: {},
         create: {
             email: 'yousuf@wearecollaborative.net',
-            password: 'password', // As requested for easy access
+            password: hashedPassword,
             name: 'Yousuf Noor',
             role: 'admin',
         },
