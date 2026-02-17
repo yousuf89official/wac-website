@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useCaseStudies } from '@/hooks/useContent';
-import SEO from '@/components/SEO';
 import NeonButton from '@/components/ui/NeonButton';
 
 const CaseStudy: React.FC = () => {
@@ -40,14 +39,6 @@ const CaseStudy: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] overflow-x-hidden">
-            <SEO
-                title={study.metaTitle || `${study.title} - ${study.client}`}
-                description={study.metaDescription || study.description}
-                image={study.image}
-                url={study.canonicalUrl || `https://wearecollaborative.net/work/${study.slug}`}
-                type="article"
-            />
-
             {/* Hero Section */}
             <div className="relative h-[80vh] w-full">
                 <img

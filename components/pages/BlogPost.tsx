@@ -5,7 +5,6 @@ import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { useBlogPosts } from '@/hooks/useContent';
-import SEO from '@/components/SEO';
 import NeonButton from '@/components/ui/NeonButton';
 
 const BlogPost: React.FC = () => {
@@ -37,14 +36,6 @@ const BlogPost: React.FC = () => {
 
     return (
         <div className="min-h-screen bg-[#0a0a0a] overflow-x-hidden">
-            <SEO
-                title={post.metaTitle || post.title}
-                description={post.metaDescription || post.excerpt}
-                image={post.image}
-                url={post.canonicalUrl || `https://wearecollaborative.net/blog/${post.slug}`}
-                type="article"
-            />
-
             {/* Hero Image */}
             <div className="relative h-[60vh] w-full">
                 <img

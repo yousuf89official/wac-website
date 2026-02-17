@@ -1,12 +1,56 @@
 import type { Metadata } from "next";
-// import { Inter } from "next/font/google"; // We are using imported CSS for fonts to match exact legacy.
 import "./globals.css";
 import { Providers } from "./providers";
+import prisma from "@/lib/prisma";
 
-export const metadata: Metadata = {
-    title: "We Are Collaborative",
-    description: "A Collaborative Marketing Agency",
-};
+const SITE_URL = "https://wearecollaborative.net";
+
+export async function generateMetadata(): Promise<Metadata> {
+    const [seo, brand] = await Promise.all([
+        prisma.globalSeo.findFirst(),
+        prisma.brandConfig.findFirst(),
+    ]);
+
+    const siteName = seo?.siteName || brand?.name || "We Are Collaborative";
+    const description =
+        seo?.siteDescription ||
+        brand?.tagline ||
+        "A network of elite marketing specialists, strategists, and creative minds.";
+    const separator = seo?.separator || "|";
+    const ogImage = seo?.defaultImage || "/og-default.jpg";
+
+    return {
+        metadataBase: new URL(SITE_URL),
+        title: {
+            default: siteName,
+            template: `%s ${separator} ${siteName}`,
+        },
+        description,
+        openGraph: {
+            type: "website",
+            siteName,
+            locale: "en_US",
+            url: SITE_URL,
+            title: siteName,
+            description,
+            images: [{ url: ogImage, width: 1200, height: 630 }],
+        },
+        twitter: {
+            card: "summary_large_image",
+            title: siteName,
+            description,
+            images: [ogImage],
+            ...(seo?.twitterHandle ? { creator: seo.twitterHandle } : {}),
+        },
+        robots: {
+            index: true,
+            follow: true,
+        },
+        alternates: {
+            canonical: SITE_URL,
+        },
+    };
+}
 
 export default function RootLayout({
     children,
@@ -19,6 +63,20 @@ export default function RootLayout({
                 <Providers>
                     {children}
                 </Providers>
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "Organization",
+                            name: "We Are Collaborative",
+                            url: SITE_URL,
+                            logo: `${SITE_URL}/logo.png`,
+                            description:
+                                "A network of elite marketing specialists, strategists, and creative minds.",
+                        }),
+                    }}
+                />
             </body>
         </html>
     );
