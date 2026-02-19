@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import DynamicThemeProvider from "@/components/DynamicThemeProvider";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { ReactLenis } from "lenis/react";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -17,9 +18,11 @@ export function Providers({ children }: { children: React.ReactNode }) {
             <QueryClientProvider client={queryClient}>
                 <DynamicThemeProvider>
                     <NotificationProvider>
-                        <TooltipProvider>
-                            {children}
-                        </TooltipProvider>
+                        <ReactLenis root options={{ autoRaf: true }}>
+                            <TooltipProvider>
+                                {children}
+                            </TooltipProvider>
+                        </ReactLenis>
                         <Toaster />
                         <Sonner />
                     </NotificationProvider>
