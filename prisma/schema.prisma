@@ -45,11 +45,23 @@ model SectionContent {
 }
 
 model Service {
-  id          Int    @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
   title       String
   description String
   icon        String
-  order       Int    @default(0)
+  order       Int              @default(0)
+  packages    ServicePackage[]
+}
+
+model ServicePackage {
+  id        Int     @id @default(autoincrement())
+  serviceId Int
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  tier      String  // "Starter", "Growth", "Enterprise"
+  price     String  // "$2,500/mo" or "Custom"
+  features  String  // JSON array of feature strings
+  isPopular Boolean @default(false)
+  order     Int     @default(0)
 }
 
 model ProcessStep {
@@ -165,12 +177,196 @@ model BlogPost {
   content         String
   image           String
   author          String
+  category        String   @default("Insights")
   date            DateTime @default(now())
-  isPublished     Boolean @default(true)
+  isPublished     Boolean  @default(true)
   metaTitle       String?
   metaDescription String?
   focusKeyword    String?
   canonicalUrl    String?
+}
+
+model Course {
+  id          Int      @id @default(autoincrement())
+  slug        String   @unique
+  title       String
+  description String
+  price       Float
+  image       String
+  category    String
+  duration    String
+  level       String
+  modules     String   // JSON array of module objects
+  features    String   // JSON array of feature strings
+  isPublished Boolean  @default(false)
+  isFeatured  Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  enrollments    Enrollment[]
+  orders         Order[]
+  communityPosts CommunityPost[]
+}
+
+// ── Customer Portal ─────────────────────────────
+
+model Customer {
+  id                   Int       @id @default(autoincrement())
+  email                String    @unique
+  password             String    // bcrypt hashed
+  firstName            String
+  lastName             String
+  avatar               String?
+  phone                String?
+  company              String?
+  country              String    @default("ID")
+  emailVerified        DateTime?
+  passwordResetToken   String?
+  passwordResetExpires DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  enrollments    Enrollment[]
+  orders         Order[]
+  subscriptions  Subscription[]
+  savedResources SavedResource[]
+  communityPosts CommunityPost[]
+  communityReplies CommunityReply[]
+  invoices       Invoice[]
+}
+
+model Enrollment {
+  id               Int       @id @default(autoincrement())
+  customerId       Int
+  customer         Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  courseId          Int
+  course           Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrolledAt       DateTime  @default(now())
+  completedAt      DateTime?
+  progress         Int       @default(0) // 0-100
+  lastAccessedAt   DateTime?
+  completedModules String    @default("[]") // JSON array of completed module indices
+
+  @@unique([customerId, courseId])
+}
+
+// ── Payments & Orders ───────────────────────────
+
+model Order {
+  id            Int       @id @default(autoincrement())
+  orderId       String    @unique // Midtrans-compatible order ID (e.g., "WAC-1234567890")
+  customerId    Int
+  customer      Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  type          String    // "course", "subscription", "service_package"
+  courseId       Int?
+  course         Course?   @relation(fields: [courseId], references: [id])
+  amount        Float
+  currency      String    @default("IDR")
+  customerEmail String
+  customerName  String
+  customerPhone String?
+  status        String    @default("pending") // pending, settlement, expire, cancel, deny, refund
+  transactionId String?
+  snapToken     String?
+  paymentMethod String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  payments Payment[]
+  invoices Invoice[]
+}
+
+model Payment {
+  id              Int       @id @default(autoincrement())
+  orderId         Int
+  order           Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  transactionId   String?   @unique
+  amount          Float
+  paymentType     String    // credit_card, gopay, bank_transfer, etc.
+  status          String    // capture, settlement, pending, deny, cancel, expire, refund
+  transactionTime DateTime?
+  settlementTime  DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+model Invoice {
+  id            Int       @id @default(autoincrement())
+  invoiceNumber String    @unique // e.g., "INV-WAC-2024-0001"
+  orderId       Int
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customerId    Int
+  customer      Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  amount        Float
+  currency      String    @default("IDR")
+  status        String    @default("unpaid") // unpaid, paid, overdue
+  dueDate       DateTime?
+  paidAt        DateTime?
+  createdAt     DateTime  @default(now())
+}
+
+model Subscription {
+  id              Int       @id @default(autoincrement())
+  customerId      Int
+  customer        Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  planName        String
+  amount          Float
+  currency        String    @default("IDR")
+  status          String    @default("active") // active, paused, cancelled
+  billingCycle    String    // monthly, quarterly, yearly
+  nextBillingDate DateTime?
+  paymentToken    String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model SavedResource {
+  id           Int       @id @default(autoincrement())
+  customerId   Int
+  customer     Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  resourceName String
+  resourceUrl  String
+  resourceType String    // "pdf", "template", "video", "course_material"
+  courseId      Int?
+  savedAt      DateTime  @default(now())
+  downloadedAt DateTime?
+}
+
+// ── Community ───────────────────────────────────
+
+model CommunityPost {
+  id         Int       @id @default(autoincrement())
+  customerId Int
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  courseId    Int?
+  course     Course?   @relation(fields: [courseId], references: [id])
+  title      String
+  content    String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  replies CommunityReply[]
+}
+
+model CommunityReply {
+  id         Int           @id @default(autoincrement())
+  postId     Int
+  post       CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  customerId Int
+  customer   Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime      @default(now())
+}
+
+// ── SEO / GEO / AEO ────────────────────────────
+
+model FAQ {
+  id       Int    @id @default(autoincrement())
+  question String
+  answer   String
+  page     String // "services", "academy", "about", "general"
+  locale   String @default("en")
+  order    Int    @default(0)
 }
 
 model Lead {

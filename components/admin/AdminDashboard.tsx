@@ -106,7 +106,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onLogout }) =>
         </div>
 
         <div className="flex gap-4 mb-12 border-b border-white/5 pb-6 overflow-x-auto">
-          {['overview', 'leads', 'brand', 'navigation', 'hero', 'theme', 'services', 'testimonials', 'clients', 'blogs', 'work', 'seo'].map(tab => (
+          {['overview', 'leads', 'brand', 'navigation', 'hero', 'theme', 'services', 'courses', 'testimonials', 'clients', 'blogs', 'work', 'seo'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -244,6 +244,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onLogout }) =>
               { key: 'title', label: 'Title', type: 'text' },
               { key: 'description', label: 'Description', type: 'textarea' },
               { key: 'icon', label: 'Icon Type (strategy, performance, etc)', type: 'text' }
+            ]}
+          />
+        )}
+
+        {activeTab === 'courses' && (
+          <ContentManager
+            title="Academy Courses"
+            type="courses"
+            fields={[
+              { key: 'title', label: 'Title', type: 'text' },
+              { key: 'slug', label: 'Slug (URL)', type: 'text' },
+              { key: 'description', label: 'Description', type: 'textarea' },
+              { key: 'price', label: 'Price (number)', type: 'number' },
+              { key: 'category', label: 'Category', type: 'text' },
+              { key: 'duration', label: 'Duration (e.g. 6 weeks)', type: 'text' },
+              { key: 'level', label: 'Level (Beginner/Intermediate/Advanced)', type: 'text' },
+              { key: 'image', label: 'Cover Image URL', type: 'image' },
+              { key: 'modules', label: 'Modules (JSON array)', type: 'textarea' },
+              { key: 'features', label: 'Features (JSON array)', type: 'textarea' }
             ]}
           />
         )}

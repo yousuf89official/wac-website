@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import AdminDashboard from '@/components/admin/AdminDashboard';
-import LoginModal from '@/components/ui/LoginModal';
 import api from '@/lib/api';
 
 const AdminPage: React.FC = () => {
@@ -13,21 +12,24 @@ const AdminPage: React.FC = () => {
     useEffect(() => {
         api.get('/auth/me')
             .then(({ data }) => {
-                setIsAuthenticated(data.authenticated);
+                if (data.authenticated) {
+                    setIsAuthenticated(true);
+                } else {
+                    router.push('/login');
+                }
             })
             .catch(() => {
-                setIsAuthenticated(false);
+                router.push('/login');
             });
-    }, []);
+    }, [router]);
 
     const handleLogout = async () => {
         await api.post('/auth/logout');
-        setIsAuthenticated(false);
-        router.push('/');
+        router.push('/login');
     };
 
     // Loading state
-    if (isAuthenticated === null) {
+    if (!isAuthenticated) {
         return (
             <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
                 <div className="w-8 h-8 border-2 border-[#00f0ff] border-t-transparent rounded-full animate-spin" />
@@ -35,23 +37,11 @@ const AdminPage: React.FC = () => {
         );
     }
 
-    if (isAuthenticated) {
-        return (
-            <AdminDashboard
-                onClose={() => router.push('/')}
-                onLogout={handleLogout}
-            />
-        );
-    }
-
     return (
-        <div className="min-h-screen bg-[#0a0a0a]">
-            <LoginModal
-                isOpen={true}
-                onClose={() => router.push('/')}
-                onLoginSuccess={() => setIsAuthenticated(true)}
-            />
-        </div>
+        <AdminDashboard
+            onClose={() => router.push('/')}
+            onLogout={handleLogout}
+        />
     );
 };
 
