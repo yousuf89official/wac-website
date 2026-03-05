@@ -147,3 +147,81 @@ export const leadCreateSchema = z.object({
 export const leadUpdateSchema = z.object({
     status: z.enum(['new', 'contacted', 'qualified', 'closed']),
 });
+
+// ── Course ──────────────────────────────────
+
+export const courseCreateSchema = z.object({
+    title: z.string().min(1).max(200),
+    slug: z.string().min(1).max(200).regex(/^[a-z0-9-]+$/),
+    description: z.string().min(1),
+    price: z.number().min(0),
+    image: z.string().min(1),
+    category: z.string().min(1).max(50),
+    duration: z.string().min(1).max(50),
+    level: z.string().min(1).max(30),
+    modules: z.string().min(1),
+    features: z.string().min(1),
+    isPublished: z.boolean().optional().default(false),
+    isFeatured: z.boolean().optional().default(false),
+    order: z.number().int().optional().default(0),
+});
+
+export const courseUpdateSchema = courseCreateSchema.partial();
+
+// ── Customer Auth ───────────────────────────
+
+export const customerRegisterSchema = z.object({
+    email: z.string().email('Invalid email'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+    firstName: z.string().min(1, 'First name required').max(50),
+    lastName: z.string().min(1, 'Last name required').max(50),
+    phone: z.string().max(20).optional(),
+    company: z.string().max(100).optional(),
+    country: z.string().max(2).optional().default('ID'),
+});
+
+export const customerLoginSchema = z.object({
+    email: z.string().email('Invalid email'),
+    password: z.string().min(1, 'Password required'),
+});
+
+export const customerUpdateSchema = z.object({
+    firstName: z.string().min(1).max(50).optional(),
+    lastName: z.string().min(1).max(50).optional(),
+    phone: z.string().max(20).optional().nullable(),
+    company: z.string().max(100).optional().nullable(),
+    avatar: z.string().optional().nullable(),
+    country: z.string().max(2).optional(),
+});
+
+export const forgotPasswordSchema = z.object({
+    email: z.string().email('Invalid email'),
+});
+
+export const resetPasswordSchema = z.object({
+    token: z.string().min(1),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+export const changePasswordSchema = z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(8, 'Password must be at least 8 characters'),
+});
+
+// ── Payment ─────────────────────────────────
+
+export const createTransactionSchema = z.object({
+    courseId: z.number().int().positive(),
+    customerName: z.string().min(1).max(100),
+    customerEmail: z.string().email(),
+    customerPhone: z.string().max(20).optional(),
+});
+
+// ── Community ───────────────────────────────
+
+export const communityPostSchema = z.object({
+    title: z.string().min(1).max(200),
+    content: z.string().min(1).max(5000),
+    courseId: z.number().int().optional().nullable(),
+});
+
