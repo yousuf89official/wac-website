@@ -21,7 +21,23 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onCtaClick }) => {
     setIsVisible(true);
   }, []);
 
-  if (isLoading || !data) return null;
+  if (isLoading || !data) return (
+    <section className="relative min-h-screen flex items-center justify-center bg-background">
+      <div className="relative z-20 max-w-6xl mx-auto px-6 text-center w-full animate-pulse">
+        <div className="h-8 w-56 bg-white/5 rounded-full mx-auto mb-8" />
+        <div className="h-16 w-4/5 bg-white/5 rounded-2xl mx-auto mb-4" />
+        <div className="h-16 w-3/5 bg-white/5 rounded-2xl mx-auto mb-6" />
+        <div className="h-6 w-2/3 bg-white/5 rounded-lg mx-auto mb-10" />
+        <div className="flex gap-4 justify-center mb-16">
+          <div className="h-12 w-44 bg-white/5 rounded-full" />
+          <div className="h-12 w-36 bg-white/5 rounded-full" />
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-white/5 rounded-lg" />)}
+        </div>
+      </div>
+    </section>
+  );
 
   const { hero } = data.sections || {};
   const { brand, stats } = data;

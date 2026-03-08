@@ -10,7 +10,22 @@ interface BlogSectionProps {
 const BlogSection: React.FC<BlogSectionProps> = ({ onViewPost }) => {
   const { data: posts, isLoading } = useBlogPosts();
 
-  if (isLoading || !posts) return null;
+  if (isLoading || !posts) return (
+    <section className="relative py-[var(--section-padding)] bg-background">
+      <div className="max-w-7xl mx-auto px-6 animate-pulse">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-20 gap-8">
+          <div>
+            <div className="h-3 w-24 bg-white/5 rounded-full mb-4" />
+            <div className="h-14 w-80 bg-white/5 rounded-xl" />
+          </div>
+          <div className="h-10 w-40 bg-white/5 rounded-full" />
+        </div>
+        <div className="grid md:grid-cols-3 gap-8">
+          {[1, 2, 3].map(i => <div key={i} className="h-96 bg-white/5 rounded-[2rem]" />)}
+        </div>
+      </div>
+    </section>
+  );
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {

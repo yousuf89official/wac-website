@@ -8,7 +8,20 @@ const ClientsSection: React.FC = () => {
 
   const isLoading = clientsLoading || globalLoading;
 
-  if (isLoading || !clients || clients.length === 0) return null;
+  if (isLoading) return (
+    <section className="relative py-[var(--section-padding)] bg-background">
+      <div className="max-w-7xl mx-auto px-6 animate-pulse">
+        <div className="text-center mb-16">
+          <div className="h-3 w-32 bg-white/5 rounded-full mx-auto mb-4" />
+          <div className="h-10 w-72 bg-white/5 rounded-xl mx-auto" />
+        </div>
+        <div className="flex gap-12 justify-center">
+          {[1, 2, 3, 4, 5].map(i => <div key={i} className="w-40 h-20 bg-white/5 rounded-xl flex-shrink-0" />)}
+        </div>
+      </div>
+    </section>
+  );
+  if (!clients || clients.length === 0) return null;
 
   const stats = globalData?.stats || [];
 

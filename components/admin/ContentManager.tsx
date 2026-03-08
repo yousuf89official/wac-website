@@ -11,7 +11,7 @@ interface FieldConfig {
 }
 
 interface ContentManagerProps {
-    type: 'services' | 'testimonials' | 'clients' | 'blogs' | 'case-studies' | 'navigation' | 'stats' | 'courses';
+    type: 'services' | 'testimonials' | 'clients' | 'blogs' | 'case-studies' | 'navigation' | 'stats' | 'courses' | 'process-steps' | 'values';
     fields: FieldConfig[];
     title: string;
 }

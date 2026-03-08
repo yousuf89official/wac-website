@@ -106,7 +106,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onLogout }) =>
         </div>
 
         <div className="flex gap-4 mb-12 border-b border-white/5 pb-6 overflow-x-auto">
-          {['overview', 'leads', 'brand', 'navigation', 'hero', 'theme', 'services', 'courses', 'testimonials', 'clients', 'blogs', 'work', 'seo'].map(tab => (
+          {['overview', 'leads', 'brand', 'navigation', 'hero', 'sections', 'theme', 'services', 'process', 'values', 'courses', 'testimonials', 'clients', 'blogs', 'work', 'seo'].map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -235,6 +235,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onLogout }) =>
           <ThemeManager />
         )}
 
+        {activeTab === 'sections' && (
+          <SectionContentEditor />
+        )}
+
         {/* Content Management Tabs */}
         {activeTab === 'services' && (
           <ContentManager
@@ -244,6 +248,33 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onClose, onLogout }) =>
               { key: 'title', label: 'Title', type: 'text' },
               { key: 'description', label: 'Description', type: 'textarea' },
               { key: 'icon', label: 'Icon Type (strategy, performance, etc)', type: 'text' }
+            ]}
+          />
+        )}
+
+        {activeTab === 'process' && (
+          <ContentManager
+            title="Process Steps"
+            type="process-steps"
+            fields={[
+              { key: 'number', label: 'Step Number (e.g. 01)', type: 'text' },
+              { key: 'title', label: 'Title', type: 'text' },
+              { key: 'description', label: 'Description', type: 'textarea' },
+              { key: 'color', label: 'Accent Color (hex, e.g. #00f0ff)', type: 'text' },
+              { key: 'order', label: 'Order', type: 'number' }
+            ]}
+          />
+        )}
+
+        {activeTab === 'values' && (
+          <ContentManager
+            title="Company Values"
+            type="values"
+            fields={[
+              { key: 'title', label: 'Title', type: 'text' },
+              { key: 'description', label: 'Description', type: 'textarea' },
+              { key: 'icon', label: 'Icon (collaboration, results, transparency, partnership)', type: 'text' },
+              { key: 'order', label: 'Order', type: 'number' }
             ]}
           />
         )}
@@ -430,6 +461,84 @@ const ThemeManager: React.FC = () => {
         {updateTheme.isPending ? 'Syncing...' : 'Deploy Theme Configuration'}
       </NeonButton>
     </form>
+  );
+};
+
+const SECTION_IDS = ['hero', 'services', 'process', 'about', 'cta'];
+
+const SectionContentEditor: React.FC = () => {
+  const { data: globalContent, refetch } = useGlobalContent();
+  const { notify } = useNotification();
+  const [activeSection, setActiveSection] = useState('hero');
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState({ badge: '', headline: '', subheadline: '', description: '' });
+
+  useEffect(() => {
+    const s = globalContent?.sections?.[activeSection];
+    setForm({
+      badge: s?.badge || '',
+      headline: s?.headline || '',
+      subheadline: s?.subheadline || '',
+      description: s?.description || '',
+    });
+  }, [globalContent, activeSection]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      await api.put(`/sections/${activeSection}`, form);
+      refetch();
+      notify.success(`"${activeSection}" section updated.`);
+    } catch {
+      notify.error('Failed to update section.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      <div className="flex gap-3 flex-wrap">
+        {SECTION_IDS.map(id => (
+          <button
+            key={id}
+            onClick={() => setActiveSection(id)}
+            className={`px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all ${activeSection === id ? 'bg-primary text-black' : 'text-gray-500 hover:text-white border border-white/10'}`}
+          >
+            {id}
+          </button>
+        ))}
+      </div>
+
+      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6 p-8 rounded-[2rem] bg-card border border-white/5">
+        <h2 className="text-white font-bold text-lg capitalize">{activeSection} Section</h2>
+        {['badge', 'headline', 'subheadline', 'description'].map(field => (
+          <div key={field}>
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">{field}</label>
+            {field === 'description' || field === 'subheadline' ? (
+              <textarea
+                value={(form as any)[field]}
+                onChange={e => setForm({ ...form, [field]: e.target.value })}
+                className="w-full bg-background border border-white/10 rounded-xl p-4 text-white focus:border-primary outline-none min-h-[80px]"
+              />
+            ) : (
+              <input
+                type="text"
+                value={(form as any)[field]}
+                onChange={e => setForm({ ...form, [field]: e.target.value })}
+                className="w-full bg-background border border-white/10 rounded-xl p-4 text-white focus:border-primary outline-none"
+              />
+            )}
+          </div>
+        ))}
+        <div className="flex justify-end">
+          <NeonButton variant="primary" type="submit" disabled={saving}>
+            {saving ? 'Saving...' : 'Update Section'}
+          </NeonButton>
+        </div>
+      </form>
+    </div>
   );
 };
 

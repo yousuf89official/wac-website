@@ -16,9 +16,9 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  if (isLoading || !data) return null;
-
-  const { navLinks, brand, socialLinks } = data;
+  const navLinks = data?.navLinks;
+  const brand = data?.brand;
+  const socialLinks = data?.socialLinks;
 
   const currentYear = new Date().getFullYear();
 

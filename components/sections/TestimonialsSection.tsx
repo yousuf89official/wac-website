@@ -42,7 +42,18 @@ const TestimonialsSection: React.FC = () => {
     }),
   };
 
-  if (isLoading || testimonials.length === 0) return null;
+  if (isLoading) return (
+    <section className="relative py-[var(--section-padding)] bg-background">
+      <div className="max-w-6xl mx-auto px-6 animate-pulse">
+        <div className="text-center mb-20">
+          <div className="h-3 w-28 bg-white/5 rounded-full mx-auto mb-4" />
+          <div className="h-14 w-96 bg-white/5 rounded-xl mx-auto" />
+        </div>
+        <div className="h-[500px] bg-white/5 rounded-[2.5rem]" />
+      </div>
+    </section>
+  );
+  if (testimonials.length === 0) return null;
 
   return (
     <section className="relative py-[var(--section-padding)] bg-background overflow-hidden">

@@ -52,7 +52,20 @@ const ServiceIcon = ({ type }: { type: string }) => {
 const ServicesSection: React.FC = () => {
   const { data, isLoading } = useGlobalContent();
 
-  if (isLoading || !data) return null;
+  if (isLoading || !data) return (
+    <section className="relative py-[var(--section-padding)] bg-background">
+      <div className="max-w-7xl mx-auto px-6 animate-pulse">
+        <div className="text-center mb-20">
+          <div className="h-3 w-28 bg-white/5 rounded-full mx-auto mb-4" />
+          <div className="h-10 w-96 bg-white/5 rounded-xl mx-auto mb-4" />
+          <div className="h-5 w-72 bg-white/5 rounded-lg mx-auto" />
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {[1, 2, 3, 4, 5, 6].map(i => <div key={i} className="h-52 bg-white/5 rounded-2xl" />)}
+        </div>
+      </div>
+    </section>
+  );
 
   const { services: sectionInfo } = data.sections || {};
   const { services } = data;

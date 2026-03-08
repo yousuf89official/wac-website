@@ -41,7 +41,26 @@ const ValueIcon = ({ type }: { type: string }) => {
 const AboutSection: React.FC = () => {
   const { data, isLoading } = useGlobalContent();
 
-  if (isLoading || !data) return null;
+  if (isLoading || !data) return (
+    <section className="relative py-[var(--section-padding)] bg-background">
+      <div className="max-w-7xl mx-auto px-6 animate-pulse">
+        <div className="grid lg:grid-cols-2 gap-16 items-center">
+          <div>
+            <div className="h-3 w-24 bg-white/5 rounded-full mb-4" />
+            <div className="h-14 w-4/5 bg-white/5 rounded-xl mb-4" />
+            <div className="h-14 w-3/5 bg-white/5 rounded-xl mb-8" />
+            <div className="h-5 w-full bg-white/5 rounded-lg mb-2" />
+            <div className="h-5 w-5/6 bg-white/5 rounded-lg mb-2" />
+            <div className="h-5 w-4/6 bg-white/5 rounded-lg mb-10" />
+            <div className="grid sm:grid-cols-2 gap-6">
+              {[1, 2, 3, 4].map(i => <div key={i} className="h-24 bg-white/5 rounded-xl" />)}
+            </div>
+          </div>
+          <div className="aspect-square bg-white/5 rounded-[3rem]" />
+        </div>
+      </div>
+    </section>
+  );
 
   const { values, sections } = data;
   const about = sections?.about;

@@ -217,6 +217,38 @@ export const createTransactionSchema = z.object({
     customerPhone: z.string().max(20).optional(),
 });
 
+// ── Process Step ────────────────────────────
+
+export const processStepCreateSchema = z.object({
+    number: z.string().min(1).max(10),
+    title: z.string().min(1).max(100),
+    description: z.string().min(1).max(500),
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/),
+    order: z.number().int().optional().default(0),
+});
+
+export const processStepUpdateSchema = processStepCreateSchema.partial();
+
+// ── Value ────────────────────────────────────
+
+export const valueCreateSchema = z.object({
+    title: z.string().min(1).max(100),
+    description: z.string().min(1).max(500),
+    icon: z.string().min(1).max(50),
+    order: z.number().int().optional().default(0),
+});
+
+export const valueUpdateSchema = valueCreateSchema.partial();
+
+// ── Section Content ──────────────────────────
+
+export const sectionUpdateSchema = z.object({
+    badge: z.string().max(100).optional().nullable(),
+    headline: z.string().min(1).max(200),
+    subheadline: z.string().max(200).optional().nullable(),
+    description: z.string().max(1000).optional().nullable(),
+});
+
 // ── Community ───────────────────────────────
 
 export const communityPostSchema = z.object({

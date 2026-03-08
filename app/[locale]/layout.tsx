@@ -30,7 +30,7 @@ export async function generateMetadata({
         brand?.tagline ||
         "A network of elite marketing specialists, strategists, and creative minds.";
     const separator = seo?.separator || "|";
-    const ogImage = seo?.defaultImage || "/og-default.jpg";
+    const ogImage = seo?.defaultImage || "/og?title=We+Are+Collaborative";
 
     const altLocale = locale === "en" ? "id" : "en";
     const ogLocale = locale === "en" ? "en_US" : "id_ID";
@@ -70,8 +70,10 @@ export async function generateMetadata({
             },
         },
         other: {
-            'geo.region': locale === 'id' ? 'ID' : 'US',
-            'geo.placename': locale === 'id' ? 'Indonesia' : 'United States',
+            'geo.region': 'ID',
+            'geo.placename': 'Jakarta, Indonesia',
+            'geo.position': '-6.2088;106.8456',
+            ICBM: '-6.2088, 106.8456',
         },
     };
 }

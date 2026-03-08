@@ -6,7 +6,21 @@ const ProcessSection: React.FC = () => {
   const steps = data?.processSteps || [];
   const process = data?.sections?.process;
 
-  if (isLoading || steps.length === 0) return null;
+  if (isLoading) return (
+    <section className="relative py-[var(--section-padding)] bg-[#0f0f0f]">
+      <div className="max-w-7xl mx-auto px-6 animate-pulse">
+        <div className="text-center mb-16">
+          <div className="h-3 w-24 bg-white/5 rounded-full mx-auto mb-4" />
+          <div className="h-10 w-64 bg-white/5 rounded-xl mx-auto mb-4" />
+          <div className="h-5 w-80 bg-white/5 rounded-lg mx-auto" />
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-48 bg-white/5 rounded-2xl" />)}
+        </div>
+      </div>
+    </section>
+  );
+  if (steps.length === 0) return null;
 
   return (
     <section className="relative py-[var(--section-padding)] bg-[#0f0f0f]">

@@ -11,7 +11,25 @@ const CaseStudiesSection: React.FC<CaseStudiesSectionProps> = ({ onViewCaseStudy
   const { data: caseStudies, isLoading } = useCaseStudies();
   const [hoveredId, setHoveredId] = useState<number | null>(null);
 
-  if (isLoading || !caseStudies) return null;
+  if (isLoading || !caseStudies) return (
+    <section className="relative py-[var(--section-padding)] bg-background">
+      <div className="max-w-7xl mx-auto px-6 animate-pulse">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
+          <div>
+            <div className="h-3 w-20 bg-white/5 rounded-full mb-4" />
+            <div className="h-14 w-64 bg-white/5 rounded-xl mb-4" />
+            <div className="h-5 w-96 bg-white/5 rounded-lg" />
+          </div>
+          <div className="h-10 w-36 bg-white/5 rounded-full mt-8 md:mt-0" />
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-12 gap-8">
+          <div className="h-[500px] bg-white/5 rounded-3xl lg:col-span-8" />
+          <div className="h-[300px] bg-white/5 rounded-3xl lg:col-span-4" />
+          <div className="h-[300px] bg-white/5 rounded-3xl lg:col-span-4" />
+        </div>
+      </div>
+    </section>
+  );
 
   return (
     <section id="case-studies" className="relative py-[var(--section-padding)] bg-background">

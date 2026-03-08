@@ -182,9 +182,9 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  if (isLoading || !data) return null;
-
-  const { navLinks, brand } = data;
+  const navLinks = data?.navLinks;
+  const brand = data?.brand;
+  const socialLinks = data?.socialLinks || [];
 
   const isHashLink = (href: string) => href.startsWith('#');
 
@@ -398,14 +398,16 @@ const Header: React.FC = () => {
                   <div className="lg:col-span-2 lg:col-start-11">
                     <ColumnLabel>Social</ColumnLabel>
                     <div className="flex flex-col gap-1">
-                      {['Instagram', 'LinkedIn', 'Twitter'].map((name) => (
+                      {(socialLinks.length > 0 ? socialLinks : [{ id: 'ig', platform: 'Instagram', url: '#' }, { id: 'li', platform: 'LinkedIn', url: '#' }, { id: 'tw', platform: 'Twitter', url: '#' }]).map((link: any) => (
                         <motion.a
-                          key={name}
+                          key={link.id}
                           variants={itemVariants}
-                          href="#"
+                          href={link.url || '#'}
+                          target={link.url && link.url !== '#' ? '_blank' : undefined}
+                          rel="noopener noreferrer"
                           className="text-sm text-white/40 hover:text-white transition-colors duration-300 py-1.5"
                         >
-                          {name}
+                          {link.platform}
                         </motion.a>
                       ))}
                     </div>
