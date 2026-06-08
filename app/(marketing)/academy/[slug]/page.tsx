@@ -7,7 +7,7 @@ import { SectionFrame } from '@wac/ui/SectionFrame';
 import { CTAFinale } from '@wac/ui/CTAFinale';
 import { FadeUp } from '@wac/ui/FadeUp';
 import { generateBreadcrumbSchema } from '@/utils/structured-data';
-import { SITE_URL, checkoutUrl } from '@/lib/urls';
+import { SITE_URL } from '@/lib/urls';
 
 export function generateStaticParams() {
     return [];
@@ -207,7 +207,7 @@ export default async function CoursePage({
                                     </dl>
 
                                     <Link
-                                        href={checkoutUrl(`?courseId=${course.id}`)}
+                                        href="/#contact"
                                         className="group mt-10 inline-flex h-14 w-full items-center justify-center gap-3 rounded-full bg-foreground px-8 text-2xs font-semibold uppercase tracking-widest text-background transition-all hover:gap-5 hover:bg-primary"
                                     >
                                         Enroll Now

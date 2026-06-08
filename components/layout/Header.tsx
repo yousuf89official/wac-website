@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useGlobalContent } from '@/hooks/useContent';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useLenis } from 'lenis/react';
-import { loginUrl, registerUrl, dashboardUrl } from '@/lib/urls';
 
 // ─── Animation Variants ───────────────────────────────────────
 // Clip-path reveal: the menu "unrolls" from the top like a curtain
@@ -81,39 +80,6 @@ function MegaLink({
       >
         <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75" />
       </svg>
-    </motion.button>
-  );
-}
-
-/** Smaller dot-prefixed links for secondary columns */
-function SmallLink({
-  label,
-  onClick,
-  badge,
-}: {
-  label: string;
-  onClick: () => void;
-  badge?: string;
-}) {
-  return (
-    <motion.button
-      variants={itemVariants}
-      onClick={onClick}
-      className="group flex items-center gap-3 py-2.5 text-left w-full"
-    >
-      <span className="w-1.5 h-1.5 rounded-full bg-white/20 group-hover:bg-white group-hover:shadow-[0_0_8px_rgba(255,255,255,0.4)] transition-all duration-300" />
-      <span
-        className="text-lg text-white/60 font-medium tracking-tight
-                   transition-all duration-300 ease-out
-                   group-hover:text-white group-hover:translate-x-1"
-      >
-        {label}
-      </span>
-      {badge && (
-        <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-semibold text-white/50 uppercase tracking-wider">
-          {badge}
-        </span>
-      )}
     </motion.button>
   );
 }
@@ -208,19 +174,6 @@ const Header: React.FC = () => {
     }
     setMenuOpen(false);
   };
-
-  // Static mega menu sections
-  const portalLinks = [
-    { label: 'Dashboard', href: dashboardUrl() },
-    { label: 'Courses', href: dashboardUrl('/courses') },
-    { label: 'Orders', href: dashboardUrl('/orders') },
-    { label: 'Community', href: dashboardUrl('/community') },
-  ];
-
-  const connectLinks = [
-    { label: 'Login', href: loginUrl() },
-    { label: 'Register', href: registerUrl() },
-  ];
 
   return (
     <>
@@ -342,36 +295,8 @@ const Header: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* ── Column 2: Portal links ── */}
-                  <div className="lg:col-span-3 lg:col-start-8">
-                    <ColumnLabel>Portal</ColumnLabel>
-                    <div className="flex flex-col">
-                      {portalLinks.map((link) => (
-                        <SmallLink
-                          key={link.href}
-                          label={link.label}
-                          onClick={() => handleNavClick(link.href)}
-                        />
-                      ))}
-                    </div>
-
-                    {/* Connect sub-section */}
-                    <div className="mt-10">
-                      <ColumnLabel>Connect</ColumnLabel>
-                      <div className="flex flex-col">
-                        {connectLinks.map((link) => (
-                          <SmallLink
-                            key={link.href}
-                            label={link.label}
-                            onClick={() => handleNavClick(link.href)}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* ── Column 3: Info / social ── */}
-                  <div className="lg:col-span-2 lg:col-start-11">
+                  {/* ── Column 2: Info / social ── */}
+                  <div className="lg:col-span-3 lg:col-start-9">
                     <ColumnLabel>Social</ColumnLabel>
                     <div className="flex flex-col gap-1">
                       {(socialLinks.length > 0 ? socialLinks : [{ id: 'ig', platform: 'Instagram', url: '#' }, { id: 'li', platform: 'LinkedIn', url: '#' }, { id: 'tw', platform: 'Twitter', url: '#' }]).map((link: any) => (

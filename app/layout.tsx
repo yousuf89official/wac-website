@@ -33,9 +33,11 @@ const fontMono = JetBrains_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
+    // Tolerate a transient DB outage (e.g. Supabase free-tier cold-start) — fall
+    // back to defaults so a blip doesn't hard-crash every page via the layout.
     const [seo, brand] = await Promise.all([
-        prisma.globalSeo.findFirst(),
-        prisma.brandConfig.findFirst(),
+        prisma.globalSeo.findFirst().catch(() => null),
+        prisma.brandConfig.findFirst().catch(() => null),
     ]);
 
     const siteName = seo?.siteName || brand?.name || "We Are Collaborative";

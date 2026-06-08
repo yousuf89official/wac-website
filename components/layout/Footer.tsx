@@ -13,8 +13,6 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   const brand = data?.brand;
   const socialLinks = data?.socialLinks;
 
-  const currentYear = new Date().getFullYear();
-
   return (
     <footer className="relative bg-background py-[var(--section-padding)] overflow-hidden border-t border-white/5">
       <div className="max-w-7xl mx-auto px-6">
@@ -105,8 +103,8 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
 
         {/* Bottom Bar */}
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
-          <p className="text-gray-600 text-xs font-medium uppercase tracking-widest">
-            &copy; {currentYear} {brand?.name}. All rights reserved.
+          <p className="text-gray-600 text-xs font-medium tracking-widest">
+            An Institution of PT STIMULATE GLOBAL MEDIA. &copy; Copyright 2026. All Rights Reserved
           </p>
 
           <div className="flex items-center gap-8">

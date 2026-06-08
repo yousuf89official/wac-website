@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowUpRight, Check } from "lucide-react";
-import { checkoutUrl } from "@/lib/urls";
 
 export interface PackageCard {
     id: number | string;
@@ -95,7 +94,7 @@ function PackageCardView({ card, index }: { card: PackageCard; index: number }) 
 
                 <div className="mt-auto pt-10">
                     <Link
-                        href={checkoutUrl()}
+                        href="/#contact"
                         className="group/cta inline-flex h-12 items-center gap-3 border-b border-primary pb-1 text-2xs font-semibold uppercase tracking-widest text-primary transition-colors hover:border-primary/60"
                     >
                         Get Started
