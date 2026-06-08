@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter, usePathname } from '@/lib/i18n/navigation';
-import { useLocale, useTranslations } from 'next-intl';
+import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGlobalContent } from '@/hooks/useContent';
 import { useActiveSection } from '@/hooks/useActiveSection';
-import { routing } from '@/lib/i18n/routing';
 import { useLenis } from 'lenis/react';
+import { loginUrl, registerUrl, dashboardUrl } from '@/lib/urls';
 
 // ─── Animation Variants ───────────────────────────────────────
 // Clip-path reveal: the menu "unrolls" from the top like a curtain
@@ -136,8 +135,6 @@ function ColumnLabel({ children }: { children: React.ReactNode }) {
 const Header: React.FC = () => {
   const router = useRouter();
   const pathname = usePathname();
-  const locale = useLocale();
-  const t = useTranslations('nav');
   const { data, isLoading } = useGlobalContent();
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -212,21 +209,17 @@ const Header: React.FC = () => {
     setMenuOpen(false);
   };
 
-  const switchLocale = (newLocale: string) => {
-    router.replace(pathname, { locale: newLocale });
-  };
-
   // Static mega menu sections
   const portalLinks = [
-    { label: t('dashboard'), href: '/dashboard' },
-    { label: 'Courses', href: '/dashboard/courses' },
-    { label: 'Orders', href: '/dashboard/orders' },
-    { label: 'Community', href: '/dashboard/community' },
+    { label: 'Dashboard', href: dashboardUrl() },
+    { label: 'Courses', href: dashboardUrl('/courses') },
+    { label: 'Orders', href: dashboardUrl('/orders') },
+    { label: 'Community', href: dashboardUrl('/community') },
   ];
 
   const connectLinks = [
-    { label: t('login'), href: '/login' },
-    { label: t('register'), href: '/register' },
+    { label: 'Login', href: loginUrl() },
+    { label: 'Register', href: registerUrl() },
   ];
 
   return (
@@ -259,23 +252,6 @@ const Header: React.FC = () => {
 
           {/* Right actions */}
           <div className="flex items-center gap-2.5">
-            {/* Locale switcher (desktop) */}
-            <div className="hidden md:flex items-center rounded-full border border-white/[0.08] overflow-hidden">
-              {routing.locales.map((l) => (
-                <button
-                  key={l}
-                  onClick={() => switchLocale(l)}
-                  className={`px-3.5 py-1.5 text-[11px] font-medium uppercase tracking-widest transition-all duration-300 ${
-                    locale === l
-                      ? 'bg-white text-black'
-                      : 'text-white/40 hover:text-white/80'
-                  }`}
-                >
-                  {l}
-                </button>
-              ))}
-            </div>
-
             {/* CTA pill (desktop) */}
             <button
               onClick={() => handleNavClick('/#contact')}
@@ -283,7 +259,7 @@ const Header: React.FC = () => {
                          text-xs font-semibold tracking-wide
                          hover:bg-white/90 active:scale-95 transition-all duration-200"
             >
-              {t('discussGrowth')}
+              Discuss Growth
             </button>
 
             {/* Menu toggle pill */}
@@ -411,29 +387,6 @@ const Header: React.FC = () => {
                         </motion.a>
                       ))}
                     </div>
-
-                    {/* Mobile locale switcher */}
-                    <motion.div
-                      variants={itemVariants}
-                      className="mt-10 md:hidden"
-                    >
-                      <ColumnLabel>Language</ColumnLabel>
-                      <div className="flex items-center rounded-full border border-white/[0.08] overflow-hidden w-fit">
-                        {routing.locales.map((l) => (
-                          <button
-                            key={l}
-                            onClick={() => switchLocale(l)}
-                            className={`px-4 py-2 text-xs font-medium uppercase tracking-wider transition-all duration-300 ${
-                              locale === l
-                                ? 'bg-white text-black'
-                                : 'text-white/40 hover:text-white/80'
-                            }`}
-                          >
-                            {l}
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
                   </div>
                 </div>
 
@@ -452,7 +405,7 @@ const Header: React.FC = () => {
                                text-sm font-semibold tracking-wide
                                hover:bg-white/90 active:scale-95 transition-all duration-200"
                   >
-                    {t('startCollaboration')}
+                    Start Collaboration
                   </button>
                 </motion.div>
               </div>

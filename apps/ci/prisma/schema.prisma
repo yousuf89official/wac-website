@@ -1,0 +1,873 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_POSTGRES_PRISMA_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+model User {
+  id          String      @id @default(cuid())
+  email       String      @unique
+  // password kept for legacy/admin direct-login; nullable as customers now
+  // authenticate via WAC JWT and may not have a CI password row.
+  password    String?
+  name        String?
+  role        String      @default("viewer")
+  workRole    String?     // "Role at Work" e.g. Marketing Manager, Analyst
+  status      String      @default("Active")
+  permissions String?     // JSON array of allowed feature keys e.g. ["dashboard","brands","reports"]
+  // Bridge to WAC's Customer table (Phase 4 — auth unification). When set,
+  // the CI User is the per-product profile for a WAC customer; identity +
+  // password live in WAC. Nullable for CI-only admins.
+  wacCustomerId Int?      @unique
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  invoices      Invoice[]
+  brands        UserBrand[]
+  igExtractions IgExtraction[]
+  ttExtractions TtExtraction[]
+  subscriptions    Subscription[]
+  referralCode     ReferralCode?
+  referredBy       Referral?          @relation("ReferredBy")
+  commissions      Commission[]
+  milestones       MilestoneReward[]
+  whitelabelDomains WhitelabelDomain[]
+  scheduledReports  ScheduledReport[]
+  apiKeys           ApiKey[]
+}
+
+model UserBrand {
+  id        String   @id @default(cuid())
+  userId    String
+  brandId   String
+  role      String   @default("member") // owner, admin, member, viewer
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand     Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, brandId])
+  @@index([brandId])
+}
+
+model Brand {
+  id                String           @id @default(cuid())
+  name              String
+  slug              String           @unique
+  industryId        String?
+  industrySubTypeId String?
+  website           String?
+  logo              String?
+  status            String           @default("Active")
+  defaultCurrency   String           @default("USD")
+  location          String?
+  brandColor        String?
+  brandFontColor    String           @default("#000000")
+  description       String?
+  wallpapers        String?          // Stored as JSON string list
+  productImages     String?          // Stored as JSON string list
+  pricingModel      String?          // Stored as JSON string
+  socialLinks       String?          // Stored as JSON string
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  subTypeRelation   IndustrySubType? @relation(fields: [industrySubTypeId], references: [id])
+  industryRelation  Industry?        @relation(fields: [industryId], references: [id])
+  campaigns         Campaign[]
+  integrations      Integration[]
+  metrics           Metric[]
+  shareLinks        ShareLink[]
+  users             UserBrand[]
+  scheduledReports  ScheduledReport[]
+  creatives         Creative[]
+  campaignTemplates CampaignTemplate[]
+}
+
+model Industry {
+  id        String            @id @default(cuid())
+  name      String            @unique
+  slug      String            @unique
+  createdAt DateTime          @default(now())
+  brands    Brand[]
+  subTypes  IndustrySubType[]
+}
+
+model IndustrySubType {
+  id         String   @id @default(cuid())
+  name       String
+  slug       String   @unique
+  industryId String
+  createdAt  DateTime @default(now())
+  brands     Brand[]
+  industry   Industry @relation(fields: [industryId], references: [id])
+}
+
+model Campaign {
+  id             String            @id @default(cuid())
+  name           String
+  slug           String
+  description    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  budgetPlanned  Float             @default(0)
+  currency       String?
+  timezone       String            @default("UTC")
+  status         String            @default("Active")
+  approvalStatus String            @default("draft")
+  brandId        String
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  brand          Brand             @relation(fields: [brandId], references: [id])
+  channels       CampaignChannel[]
+  metrics        Metric[]
+  subCampaigns   SubCampaign[]
+  integrationLinks CampaignIntegration[]
+  comments          CampaignComment[]
+  budgetAllocations BudgetAllocation[]
+  alerts            CampaignAlert[]
+  rules             CampaignRule[]
+}
+
+model SubCampaign {
+  id             String               @id @default(cuid())
+  name           String
+  slug           String
+  status         String               @default("Active")
+  description    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  budgetPlanned  Float                @default(0)
+  region         String?
+  country        String?
+  targetAudience String?
+  configuration  String?
+  campaignId     String
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  metrics        Metric[]
+  campaign       Campaign             @relation(fields: [campaignId], references: [id])
+  channels       SubCampaignChannel[]
+}
+
+model Platform {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  status   String    @default("Active")
+  channels Channel[]
+}
+
+model Channel {
+  id           String               @id @default(cuid())
+  name         String
+  slug         String               @unique
+  status       String               @default("Active")
+  platformId   String
+  campaigns    CampaignChannel[]
+  platform     Platform             @relation(fields: [platformId], references: [id])
+  metrics      Metric[]
+  subCampaigns SubCampaignChannel[]
+}
+
+model CampaignChannel {
+  id         String   @id @default(cuid())
+  campaignId String
+  channelId  String
+  channel    Channel  @relation(fields: [channelId], references: [id])
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+
+  @@unique([campaignId, channelId])
+}
+
+model SubCampaignChannel {
+  id            String      @id @default(cuid())
+  subCampaignId String
+  channelId     String
+  channel       Channel     @relation(fields: [channelId], references: [id])
+  subCampaign   SubCampaign @relation(fields: [subCampaignId], references: [id])
+
+  @@unique([subCampaignId, channelId])
+}
+
+model Integration {
+  id           String                @id @default(cuid())
+  provider     String
+  accessToken  String?
+  refreshToken String?
+  customerId   String?
+  accountName  String?
+  status       String                @default("Active")
+  brandId      String
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  brand        Brand                 @relation(fields: [brandId], references: [id])
+  campaignLinks CampaignIntegration[]
+}
+
+model CampaignIntegration {
+  id                 String      @id @default(cuid())
+  integrationId      String
+  campaignId         String
+  externalCampaignId String?     // The campaign ID on the external platform (e.g. Google Ads campaign ID)
+  externalName       String?     // The campaign name on the external platform
+  isActive           Boolean     @default(true)
+  lastSyncedAt       DateTime?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  integration        Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  campaign           Campaign    @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@unique([integrationId, campaignId])
+  @@index([campaignId])
+  @@index([integrationId])
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  userName  String
+  userEmail String
+  action    String   // login, login_failed, create, update, delete, export, view, sync
+  target    String   // Authentication, Campaign, Brand, Reports, Settings, etc.
+  detail    String
+  severity  String   @default("info") // info, warning, critical
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt(sort: Desc)])
+  @@index([userId])
+  @@index([severity])
+}
+
+model InviteToken {
+  id        String    @id @default(cuid())
+  token     String    @unique
+  email     String?
+  role      String    @default("viewer")
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdBy String
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+}
+
+// ─── WEBSITE ANALYTICS & TRACKING ────────────────────────────────────
+
+model PageView {
+  id          String   @id @default(cuid())
+  path        String
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  utmContent  String?
+  utmTerm     String?
+  deviceType  String?
+  browser     String?
+  country     String?
+  sessionId   String
+  duration    Int?
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+  @@index([sessionId])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String
+  category  String?
+  path      String
+  sessionId String
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([sessionId])
+  @@index([category, createdAt])
+}
+
+model ClickEvent {
+  id             String   @id @default(cuid())
+  sessionId      String
+  path           String
+  x              Float
+  y              Float
+  elementTag     String?
+  elementText    String?
+  elementHref    String?
+  viewportWidth  Int?
+  viewportHeight Int?
+  createdAt      DateTime @default(now())
+
+  @@index([path, createdAt])
+  @@index([sessionId])
+}
+
+model SessionDetail {
+  id            String   @id @default(cuid())
+  sessionId     String   @unique
+  ip            String?
+  userAgent     String?
+  deviceType    String?
+  browser       String?
+  os            String?
+  screenWidth   Int?
+  screenHeight  Int?
+  language      String?
+  country       String?
+  city          String?
+  referrer      String?
+  landingPage   String?
+  exitPage      String?
+  entryTime     DateTime @default(now())
+  lastActivity  DateTime @default(now())
+  pageCount     Int      @default(1)
+  totalDuration Int      @default(0)
+  isBounce      Boolean  @default(true)
+  utmSource     String?
+  utmMedium     String?
+  utmCampaign   String?
+
+  @@index([entryTime])
+  @@index([lastActivity])
+  @@index([entryTime, deviceType])
+  @@index([entryTime, browser])
+  @@index([entryTime, os])
+  @@index([entryTime, country])
+  @@index([entryTime, isBounce])
+  @@index([entryTime, exitPage])
+  @@index([entryTime, language])
+  @@index([entryTime, city])
+}
+
+model BehaviorEvent {
+  id        String   @id @default(cuid())
+  sessionId String
+  visitorId String?
+  type      String
+  path      String
+  data      String?
+  createdAt DateTime @default(now())
+
+  @@index([type, createdAt])
+  @@index([sessionId])
+  @@index([path, createdAt])
+  @@index([createdAt])
+}
+
+model SiteVisitor {
+  id               String           @id @default(cuid())
+  fingerprintHash  String           @unique
+  firstSeen        DateTime         @default(now())
+  lastSeen         DateTime         @default(now())
+  visitCount       Int              @default(1)
+  name             String?
+  email            String?
+  company          String?
+  role             String?
+  totalPageViews   Int              @default(0)
+  totalTimeOnSite  Int              @default(0)
+  topPages         String?
+  interests        String?
+  profileStage     String           @default("anonymous")
+  firstReferrer    String?
+  firstUtmSource   String?
+  firstUtmMedium   String?
+  firstUtmCampaign String?
+  firstLandingPage String?
+  sessions         VisitorSession[]
+
+  @@index([firstSeen])
+  @@index([lastSeen])
+  @@index([profileStage])
+  @@index([firstUtmSource])
+  @@index([totalPageViews])
+}
+
+model VisitorSession {
+  id        String      @id @default(cuid())
+  visitorId String
+  sessionId String      @unique
+  createdAt DateTime    @default(now())
+  visitor   SiteVisitor @relation(fields: [visitorId], references: [id], onDelete: Cascade)
+}
+
+model AudienceIntelligence {
+  id              String   @id @default(cuid())
+  sessionId       String   @unique
+  interests       String?
+  browsingHistory String?
+  lastSearch      String?
+  topTopics       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AnalyticsInsight {
+  id           String   @id @default(cuid())
+  summary      String
+  overallScore Int      @default(50)
+  sectionsJson String
+  actionsJson  String
+  periodFrom   String
+  periodTo     String
+  createdAt    DateTime @default(now())
+}
+
+// ─── CREATIVE ASSETS ─────────────────────────────────────────────────
+
+model Creative {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   @default("image") // image, video, document
+  url         String                     // Base64 data URL or external URL
+  thumbnail   String?                    // Thumbnail for video/documents
+  fileSize    Int?                       // Size in bytes
+  mimeType    String?
+  brandId     String
+  campaignId  String?
+  channelId   String?
+  status      String   @default("active") // active, archived
+  tags        String?                    // JSON array of tags
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@index([campaignId])
+}
+
+// ─── PUBLIC API KEYS ─────────────────────────────────────────────────
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String                   // "Production API Key"
+  prefix      String                   // "ci_prod_" (visible part)
+  hashedKey   String    @unique        // SHA256 hash of the full key
+  userId      String
+  scopes      String                   // JSON array: ["read:campaigns","read:metrics"]
+  rateLimit   Int       @default(1000) // Requests per minute
+  status      String    @default("active") // active, inactive, revoked
+  lastUsedAt  DateTime?
+  requestCount Int      @default(0)
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([hashedKey])
+  @@index([userId])
+}
+
+// ─── WHITE-LABEL & CLIENT PORTAL ─────────────────────────────────────
+
+model WhitelabelDomain {
+  id            String   @id @default(cuid())
+  domain        String   @unique       // e.g. "analytics.pinnaclemedia.com"
+  userId        String                  // Owner (agency admin)
+  brandName     String                  // Display name for the portal
+  logo          String?                 // Custom logo URL
+  primaryColor  String   @default("#0D9488")
+  accentColor   String   @default("#0EA5E9")
+  favicon       String?
+  customCss     String?                 // Optional CSS overrides
+  loginMessage  String?                 // Custom login page message
+  isActive      Boolean  @default(true)
+  sslStatus     String   @default("pending") // pending, active, error
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([domain])
+}
+
+model ScheduledReport {
+  id          String    @id @default(cuid())
+  brandId     String
+  userId      String                   // Who created the schedule
+  recipientEmails String              // JSON array of email addresses
+  frequency   String   @default("weekly") // daily, weekly, monthly
+  dayOfWeek   Int      @default(1)    // 0=Sun, 1=Mon, ..., 6=Sat (for weekly)
+  dayOfMonth  Int      @default(1)    // 1-28 (for monthly)
+  hour        Int      @default(8)    // UTC hour to send (0-23)
+  periodDays  Int      @default(7)    // How many days of data to include
+  includeScores    Boolean @default(true)
+  includeAnomalies Boolean @default(true)
+  includeBenchmarks Boolean @default(true)
+  isActive    Boolean  @default(true)
+  lastSentAt  DateTime?
+  nextSendAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  brand       Brand    @relation(fields: [brandId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([brandId])
+  @@index([nextSendAt])
+  @@index([isActive])
+}
+
+// ─── REVENUE FOUNDATION ──────────────────────────────────────────────
+
+model Plan {
+  id            String         @id @default(cuid())
+  slug          String         @unique // free, starter, growth, agency, enterprise
+  name          String                 // Free, Starter, Growth, Agency, Enterprise
+  description   String?
+  quotas        String                 // JSON: { brands, campaigns, users, retention, reports, apiCalls, aiQueries, integrations, whitelabelDomains, storageMb }
+  isActive      Boolean        @default(true)
+  sortOrder     Int            @default(0)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  prices        PlanPrice[]
+  subscriptions Subscription[]
+}
+
+model PlanPrice {
+  id        String   @id @default(cuid())
+  planId    String
+  region    String   // sea_id, sea_my, sea_sg, sea_th, sea_ph, south_asia_in, gcc_ae, gcc_sa, global_us, global_uk, global_au, global_eu
+  currency  String   // IDR, MYR, SGD, THB, PHP, INR, AED, SAR, USD, GBP, AUD, EUR
+  monthly   Int      // Price in smallest unit (cents/sen/paisa) for monthly billing
+  yearly    Int      // Price in smallest unit for yearly billing (per month equivalent)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  plan      Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  @@unique([planId, region])
+  @@index([region])
+}
+
+model Subscription {
+  id              String    @id @default(cuid())
+  userId          String
+  planId          String
+  status          String    @default("active") // active, trialing, past_due, canceled, expired
+  billingCycle    String    @default("monthly") // monthly, yearly
+  region          String    @default("global_us")
+  currency        String    @default("USD")
+  amountPaid      Int       @default(0)        // Last payment amount in smallest unit
+  trialEndsAt     DateTime?
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  canceledAt      DateTime?
+  paymentProvider String?   // paddle, paypal, manual
+  paymentId       String?   // External payment provider subscription ID
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan            Plan      @relation(fields: [planId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([paymentId])
+}
+
+model ReferralCode {
+  id        String     @id @default(cuid())
+  code      String     @unique    // e.g. "YOUSUF-CI" or auto-generated
+  userId    String     @unique    // One code per user
+  clicks    Int        @default(0)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referrals Referral[]
+}
+
+model Referral {
+  id              String      @id @default(cuid())
+  referralCodeId  String
+  referredUserId  String      @unique // The user who signed up via referral
+  status          String      @default("pending") // pending, active, churned
+  convertedAt     DateTime?   // When the referred user became a paying subscriber
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  referralCode    ReferralCode @relation(fields: [referralCodeId], references: [id])
+  referredUser    User         @relation("ReferredBy", fields: [referredUserId], references: [id])
+  commissions     Commission[]
+
+  @@index([referralCodeId])
+  @@index([status])
+}
+
+model Commission {
+  id          String   @id @default(cuid())
+  referralId  String
+  userId      String   // The user who EARNS this commission
+  amount      Int      // Amount in smallest currency unit
+  currency    String   @default("USD")
+  rate        Float    // The commission rate applied (e.g. 0.20 = 20%)
+  layer       Int      @default(1) // 1 = direct referral, 2 = network boost
+  status      String   @default("pending") // pending, approved, paid, rejected
+  periodStart DateTime
+  periodEnd   DateTime
+  paidAt      DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  referral    Referral @relation(fields: [referralId], references: [id])
+  earner      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+}
+
+model MilestoneReward {
+  id          String    @id @default(cuid())
+  userId      String
+  milestone   String    // first_referral, five_referrals, ten_referrals, twenty_five, fifty, hundred
+  bonusAmount Int       @default(0) // Bonus credit in smallest currency unit
+  boostPct    Float     @default(0) // Permanent commission boost (e.g. 0.02 = +2%)
+  claimedAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+
+  @@unique([userId, milestone])
+  @@index([userId])
+}
+
+// ─── END REVENUE FOUNDATION ──────────────────────────────────────────
+
+model AppConfig {
+  key       String   @id
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Metric {
+  id            String       @id @default(cuid())
+  date          DateTime
+  impressions   Int          @default(0)
+  spend         Float        @default(0)
+  clicks        Int          @default(0)
+  reach         Int          @default(0)
+  engagement    Int          @default(0)
+  currency      String       @default("USD")
+  region        String?
+  country       String?
+  brandId       String
+  campaignId    String?
+  subCampaignId String?
+  channelId     String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  channel       Channel?     @relation(fields: [channelId], references: [id])
+  subCampaign   SubCampaign? @relation(fields: [subCampaignId], references: [id])
+  campaign      Campaign?    @relation(fields: [campaignId], references: [id])
+  brand         Brand        @relation(fields: [brandId], references: [id])
+
+  @@index([brandId, date])
+  @@index([campaignId, date])
+  @@index([subCampaignId, date])
+}
+
+model ShareLink {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  brandId   String
+  isActive  Boolean  @default(true)
+  expiresAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  brand     Brand    @relation(fields: [brandId], references: [id])
+
+  @@index([brandId])
+}
+
+model Invoice {
+  id              String   @id @default(cuid())
+  invoiceNumber   String
+  date            DateTime
+  dueDate         DateTime
+  sellerName      String
+  sellerEmail     String
+  sellerAddress   String? 
+  sellerPhone     String?
+  buyerName       String
+  buyerEmail      String
+  buyerAddress    String?
+  buyerPhone      String?
+  items           String   // Stored as JSON string
+  taxRate         Float
+  currencySymbol  String   @default("Rp")
+  paymentDetails  String   // Stored as JSON string for bank info
+  terms           String?
+  signatureImage  String?  // Base64 string or URL
+  signerName      String?
+  signatureMeta   String?  // JSON string for { position: {x,y}, title: string }
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  status          String   @default("Draft") 
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model IgExtraction {
+  id          String   @id @default(cuid())
+  shortcode   String
+  mediaId     String?
+  postType    String   // post, reel, tv, story
+  originalUrl String
+  rawInput    String
+  userId      String?
+  createdAt   DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([shortcode])
+  @@index([mediaId])
+  @@index([userId])
+  @@index([createdAt(sort: Desc)], map: "ig_extraction_created_at_desc")
+}
+
+model TtExtraction {
+  id          String   @id @default(cuid())
+  videoId     String?
+  shortCode   String?
+  username    String?
+  postType    String   // video, photo, embed, share, short, trending
+  originalUrl String
+  rawInput    String
+  isShortUrl  Boolean  @default(false)
+  userId      String?
+  createdAt   DateTime @default(now())
+  user        User?    @relation(fields: [userId], references: [id])
+
+  @@index([videoId])
+  @@index([username])
+  @@index([userId])
+  @@index([createdAt(sort: Desc)], map: "tt_extraction_created_at_desc")
+}
+
+// ─── Campaign Templates ─────────────────────────────────────────────────────
+model CampaignTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  brandId     String?
+  brand       Brand?   @relation(fields: [brandId], references: [id])
+  structure   String   // JSON: { channels, subCampaigns, budgetSplits }
+  isGlobal    Boolean  @default(false)
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([brandId])
+}
+
+// ─── Campaign Comments ──────────────────────────────────────────────────────
+model CampaignComment {
+  id         String   @id @default(cuid())
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId     String
+  userName   String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  @@index([campaignId, createdAt(sort: Desc)])
+}
+
+// ─── Budget Allocations ─────────────────────────────────────────────────────
+model BudgetAllocation {
+  id            String   @id @default(cuid())
+  campaignId    String
+  campaign      Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  subCampaignId String?
+  label         String?
+  amount        Float
+  percentage    Float?
+  period        String   @default("monthly")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  @@index([campaignId])
+}
+
+// ─── Campaign Alerts ────────────────────────────────────────────────────────
+model CampaignAlert {
+  id              String    @id @default(cuid())
+  campaignId      String
+  campaign        Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  type            String
+  metric          String
+  operator        String
+  threshold       Float
+  isActive        Boolean   @default(true)
+  lastTriggeredAt DateTime?
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  @@index([campaignId])
+  @@index([isActive, lastTriggeredAt])
+}
+
+// ─── Campaign Rules Engine ──────────────────────────────────────────────────
+model CampaignRule {
+  id              String          @id @default(cuid())
+  campaignId      String
+  campaign        Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  isActive        Boolean         @default(true)
+  condition       String
+  action          String
+  frequency       String          @default("daily")
+  consecutiveHits Int             @default(1)
+  currentHits     Int             @default(0)
+  lastEvaluatedAt DateTime?
+  lastTriggeredAt DateTime?
+  createdBy       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  executions      RuleExecution[]
+  @@index([campaignId])
+  @@index([isActive, frequency])
+}
+
+model RuleExecution {
+  id          String       @id @default(cuid())
+  ruleId      String
+  rule        CampaignRule @relation(fields: [ruleId], references: [id], onDelete: Cascade)
+  matched     Boolean
+  metricVal   Float?
+  actionTaken String?
+  error       String?
+  createdAt   DateTime     @default(now())
+  @@index([ruleId, createdAt(sort: Desc)])
+}
+
+// ─── Dashboard Layouts ──────────────────────────────────────────────────────
+model DashboardLayout {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String   @default("My Dashboard")
+  layout    String   // JSON: WidgetLayoutItem[]
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+// ─── Media Analysis (AVE Calculator) ────────────────────────────────────────
+model MediaAnalysis {
+  id          String   @id @default(cuid())
+  brandId     String
+  campaignId  String?
+  name        String
+  inputs      String   // JSON: all form inputs
+  results     String   // JSON: all calculated results
+  aiAnalysis  String?  // Generated analysis text
+  channels    String?  // JSON: selected channel list
+  createdBy   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  @@index([brandId])
+  @@index([createdBy])
+}

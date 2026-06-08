@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { caseStudyCreateSchema } from '@/lib/validations';
 
+export const revalidate = 300; // 5min ISR
+
 export async function GET() {
     try {
         const studies = await prisma.caseStudy.findMany({ orderBy: { order: 'asc' } });

@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-lens-border;
+  }
+  body {
+    @apply bg-lens-bg text-lens-text;
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'DM Sans', 'Inter', system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .card {
+    @apply bg-lens-card border border-lens-border rounded-lg;
+  }
+  .card-hover {
+    @apply card hover:border-lens-border-light transition-colors duration-200;
+  }
+  .badge-positive {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-500/15 text-green-400;
+  }
+  .badge-neutral {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-500/15 text-slate-400;
+  }
+  .badge-negative {
+    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-500/15 text-red-400;
+  }
+  .btn-primary {
+    @apply bg-lens-accent hover:bg-lens-accent-hover text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+  .btn-secondary {
+    @apply bg-lens-card hover:bg-lens-card-hover border border-lens-border text-lens-text font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+  .input-field {
+    @apply bg-lens-bg border border-lens-border rounded-lg px-3 py-2 text-sm text-lens-text placeholder-lens-text-muted focus:outline-none focus:border-lens-accent transition-colors duration-200;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Recharts customization */
+.recharts-text {
+  fill: #94a3b8 !important;
+  font-size: 11px !important;
+}
+.recharts-cartesian-grid line {
+  stroke: #1e293b !important;
+}
+.recharts-tooltip-wrapper {
+  outline: none !important;
+}
+
+/* Animated counter */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-count {
+  animation: countUp 0.6s ease-out forwards;
+}

@@ -1,23 +1,29 @@
-import createNextIntlPlugin from 'next-intl/plugin';
-
-const withNextIntl = createNextIntlPlugin('./lib/i18n/request.ts');
-
-/** @type {import('next').NextConfig} */
+/**
+ * The CI product (Collaborative Intelligence) lives on its own subdomain:
+ * intelligence.wearecollaborative.net. WAC hosts ONLY the marketing landing
+ * at /intelligence (see app/(marketing)/intelligence/page.tsx) which links
+ * out to the CI subdomain for sign-in. No reverse-proxy here.
+ *
+ * NEXT_PUBLIC_CI_URL is read by the marketing landing's CTAs. In dev it
+ * defaults to the local CI port; in prod it points at the subdomain.
+ *
+ * @type {import('next').NextConfig}
+ */
 const nextConfig = {
     allowedDevOrigins: ['jakmac0003.local'],
     reactStrictMode: true,
-    // output: 'standalone',
+    transpilePackages: ['@wac/ui', '@wac/agents'],
     logging: {
         fetches: {
             fullUrl: true,
         },
     },
     images: {
+        formats: ['image/avif', 'image/webp'],
         remotePatterns: [
-            {
-                protocol: 'https',
-                hostname: 'd64gsuwffb70l.cloudfront.net',
-            },
+            { protocol: 'https', hostname: 'd64gsuwffb70l.cloudfront.net' },
+            { protocol: 'https', hostname: '*.supabase.co' },
+            { protocol: 'https', hostname: 'images.unsplash.com' },
         ],
     },
     async headers() {
@@ -36,4 +42,4 @@ const nextConfig = {
     },
 };
 
-export default withNextIntl(nextConfig);
+export default nextConfig;

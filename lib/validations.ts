@@ -257,3 +257,16 @@ export const communityPostSchema = z.object({
     courseId: z.number().int().optional().nullable(),
 });
 
+export const communityReplySchema = z.object({
+    content: z.string().min(1).max(5000),
+});
+
+// ── Saved Resources ─────────────────────────
+
+export const savedResourceSchema = z.object({
+    resourceName: z.string().min(1).max(200),
+    resourceUrl: z.string().url().max(500),
+    resourceType: z.enum(['pdf', 'template', 'video', 'course_material', 'image']),
+    courseId: z.number().int().optional().nullable(),
+});
+

@@ -22,9 +22,11 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@wac/ui": ["./packages/ui/src/index.ts"],
+      "@wac/ui/*": ["./packages/ui/src/*"],
+      "@wac/agents": ["./packages/agents/src/index.ts"],
+      "@wac/agents/*": ["./packages/agents/src/*"]
     },
     "target": "ES2017"
   },
@@ -37,6 +39,8 @@
   ],
   "exclude": [
     "node_modules",
-    "_legacy"
+    "_legacy",
+    "apps",
+    "packages"
   ]
 }

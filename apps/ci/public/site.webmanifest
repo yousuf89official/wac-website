@@ -1,0 +1,16 @@
+{
+  "name": "Collaborative Intelligence",
+  "short_name": "CI Platform",
+  "description": "Unified Campaign Intelligence Platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0C1222",
+  "theme_color": "#0D9488",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { forgotPasswordSchema, resetPasswordSchema } from '@/lib/validations';
 import { generateResetToken, getResetTokenExpiry, hashPassword } from '@/lib/auth-customer';
+import { resetPasswordUrl, SITE_URL } from '@/lib/urls';
 
 // POST /api/customer/forgot-password — Request password reset
 export async function POST(req: NextRequest) {
@@ -75,17 +76,24 @@ export async function POST(req: NextRequest) {
             },
         });
 
-        // TODO: Send email with reset link
-        // For now, log the token (development only)
+        // Build the absolute reset link. resetPasswordUrl() returns a relative
+        // path while auth still lives on the apex (Phase 1); once
+        // NEXT_PUBLIC_APP_URL points at app.wearecollaborative.net it becomes
+        // absolute on its own. Prefix SITE_URL for the relative case so emails
+        // always carry a fully-qualified link.
+        const path = resetPasswordUrl(resetToken);
+        const resetLink = path.startsWith('http') ? path : `${SITE_URL}${path}`;
+
+        // TODO: Send email with `resetLink` (Resend). For now, log it in dev.
         if (process.env.NODE_ENV !== 'production') {
-            console.log(`Password reset token for ${customer.email}: ${resetToken}`);
+            console.log(`Password reset link for ${customer.email}: ${resetLink}`);
         }
 
         return NextResponse.json({
             success: true,
             message: 'If an account exists with that email, a reset link has been sent.',
-            // Include token in dev for testing
-            ...(process.env.NODE_ENV !== 'production' ? { resetToken } : {}),
+            // Include the link in dev for testing (no email provider wired yet).
+            ...(process.env.NODE_ENV !== 'production' ? { resetLink } : {}),
         });
     } catch (error) {
         console.error('Forgot password error:', error);

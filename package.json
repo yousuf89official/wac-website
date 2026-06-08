@@ -1,17 +1,24 @@
 {
   "name": "wac-website",
-  "description": "We Are Collaborative - Modern marketing agency website",
+  "description": "We Are Collaborative — public marketing site (root) + workspaces: apps/ci (Collaborative Intelligence), apps/backend (Phase 2), packages/* (shared)",
   "private": true,
   "version": "1.0.0",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev --turbo -p 3003",
     "build": "next build",
     "start": "next start -p 3003",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "db:push": "npx prisma db push",
     "db:seed": "node prisma/seed.cjs",
-    "db:hash-passwords": "npx tsx scripts/hash-passwords.ts"
+    "db:hash-passwords": "npx tsx scripts/hash-passwords.ts",
+    "dev:ci": "npm run dev --workspace=apps/ci",
+    "build:ci": "npm run build --workspace=apps/ci"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.2",
@@ -36,11 +43,10 @@
     "lenis": "^1.3.17",
     "lucide-react": "^0.462.0",
     "midtrans-client": "^1.4.3",
-    "next": "latest",
-    "next-intl": "^4.8.3",
+    "next": "16.2.7",
     "next-themes": "^0.3.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-hook-form": "^7.53.0",
     "sonner": "^1.5.0",
     "tailwind-merge": "^2.5.2",
@@ -53,8 +59,8 @@
     "@tailwindcss/typography": "^0.5.16",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^22.19.3",
-    "@types/react": "^18.3.3",
-    "@types/react-dom": "^18.3.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.9.0",
     "eslint-config-next": "latest",

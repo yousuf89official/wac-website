@@ -1,0 +1,692 @@
+/* Editorial Luxe tokens — shared with WAC via packages/ui/src/tokens.css.
+ * The same data-theme attribute drives both apps. Whitelabel customers
+ * override --brand-* below at runtime via public-site root style injection. */
+@import '@wac/ui/tokens.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "kern", "liga", "calt";
+  }
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: var(--font-ui), system-ui, -apple-system, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    letter-spacing: -0.005em;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display), Georgia, serif;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    color: hsl(var(--foreground));
+  }
+  pre, code, kbd, samp {
+    font-family: var(--font-mono), ui-monospace, monospace;
+  }
+}
+
+/* ─── Whitelabel brand override hooks ─────────────────────────────────────
+   The whitelabel portal injects --brand-primary etc. at runtime to skin the
+   portal with the customer's brand colors. Defaults fall back to the
+   Editorial Luxe sienna so an un-skinned portal still looks correct.
+   ───────────────────────────────────────────────────────────────────────── */
+:root {
+  --brand-primary: hsl(var(--primary));
+  --brand-secondary: hsl(var(--accent));
+  --brand-bg: hsl(var(--background));
+  --brand-surface: hsl(var(--card));
+  --brand-border: hsl(var(--border));
+}
+
+.dark {
+  color-scheme: dark;
+}
+[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Custom Scrollbar */
+@layer utilities {
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+  }
+
+  .scrollbar-thin:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+
+  /* Dynamic Brand Primary Utilities */
+  .bg-brand-primary {
+    background-color: var(--brand-primary, #0D9488) !important;
+  }
+
+  .bg-brand-primary-light {
+    background-color: rgba(var(--brand-primary-rgb, 13, 148, 136), 0.1) !important;
+  }
+
+  .text-brand-primary {
+    color: var(--brand-primary, #0D9488) !important;
+  }
+
+  .border-brand-primary {
+    border-color: var(--brand-primary, #0D9488) !important;
+  }
+
+  .ring-brand-primary:focus {
+    --tw-ring-color: var(--brand-primary, #0D9488) !important;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--brand-bg);
+  color: var(--brand-text-primary);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Public Site Dark Theme ─────────────────────────────────────────────── */
+
+.public-site {
+  --brand-bg: #0C1222;
+  --brand-surface: #162032;
+  --brand-surface-highlight: #1C2840;
+  --brand-border: rgba(255, 255, 255, 0.08);
+  --brand-text-primary: #f4f4f4;
+  --brand-text-secondary: #a0a0b0;
+  background-color: #0C1222;
+  color: #f4f4f4;
+}
+
+@layer utilities {
+  /* ─── Glassmorphism System ─────────────────────────────────────────────── */
+
+  .glass {
+    background: rgba(22, 32, 50, 0.6);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-subtle {
+    background: rgba(22, 32, 50, 0.4);
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-card {
+    background: rgba(22, 32, 50, 0.5);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  .glass-card:hover {
+    background: rgba(22, 32, 50, 0.65);
+    border-color: rgba(13, 148, 136, 0.25);
+    box-shadow: 0 8px 32px rgba(13, 148, 136, 0.08);
+  }
+
+  .glass-sidebar {
+    background: rgba(12, 18, 34, 0.85);
+    backdrop-filter: blur(40px) saturate(200%);
+    -webkit-backdrop-filter: blur(40px) saturate(200%);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-header {
+    background: rgba(12, 18, 34, 0.7);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-input {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s ease;
+  }
+
+  .glass-input:focus {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(13, 148, 136, 0.4);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+  }
+
+  .glass-nav-dark {
+    backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(12, 18, 34, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  /* ─── Gradient Utilities ───────────────────────────────────────────────── */
+
+  .gradient-text {
+    background: linear-gradient(135deg, #0D9488, #0EA5E9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-light {
+    background: linear-gradient(135deg, #14B8A6, #38BDF8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-accent {
+    background: linear-gradient(135deg, #0D9488, #4F46E5);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-border {
+    border-image: linear-gradient(135deg, #0D9488, #4F46E5) 1;
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, #0D9488, #0EA5E9);
+  }
+
+  .gradient-accent {
+    background: linear-gradient(135deg, #0D9488, #4F46E5);
+  }
+
+  /* ─── Background Patterns ──────────────────────────────────────────────── */
+
+  .dark-grid-bg {
+    background-image: radial-gradient(circle at 2px 2px, rgba(13, 148, 136, 0.04) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+
+  .hero-glow {
+    background: radial-gradient(60% 50% at 50% 40%, rgba(13, 148, 136, 0.1) 0%, rgba(79, 70, 229, 0.03) 50%, transparent 100%);
+  }
+
+  .section-glow-teal {
+    background: radial-gradient(50% 50% at 50% 50%, rgba(13, 148, 136, 0.06) 0%, transparent 100%);
+  }
+
+  .section-glow-indigo {
+    background: radial-gradient(50% 50% at 50% 50%, rgba(79, 70, 229, 0.06) 0%, transparent 100%);
+  }
+
+  /* Backward compat */
+  .section-glow-blue {
+    background: radial-gradient(50% 50% at 50% 50%, rgba(13, 148, 136, 0.06) 0%, transparent 100%);
+  }
+  .section-glow-purple {
+    background: radial-gradient(50% 50% at 50% 50%, rgba(79, 70, 229, 0.06) 0%, transparent 100%);
+  }
+
+  /* ─── Animated Border ──────────────────────────────────────────────────── */
+
+  .animated-border {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .animated-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, #0D9488, #4F46E5, #0D9488);
+    background-size: 200% 200%;
+    animation: borderRotate 4s linear infinite;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+
+  @keyframes borderRotate {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ─── Float Animations ─────────────────────────────────────────────────── */
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-float-delayed {
+    animation: float 6s ease-in-out 2s infinite;
+  }
+
+  .animate-float-slow {
+    animation: float 8s ease-in-out 1s infinite;
+  }
+
+  /* ─── Pulse Glow ───────────────────────────────────────────────────────── */
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 20px rgba(13, 148, 136, 0.2); }
+    50% { box-shadow: 0 0 40px rgba(13, 148, 136, 0.4); }
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
+
+  .counter-animate {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ─── Data Grid ────────────────────────────────────────────────────────── */
+
+  .glass-nav {
+    backdrop-filter: blur(12px);
+    background-color: rgba(12, 18, 34, 0.92);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .data-grid-bg {
+    background-image: radial-gradient(circle at 2px 2px, rgba(13, 148, 136, 0.06) 1px, transparent 0);
+    background-size: 40px 40px;
+  }
+
+  .hero-gradient {
+    background: radial-gradient(60% 60% at 50% 50%, rgba(13, 148, 136, 0.08) 0%, transparent 100%);
+  }
+}
+
+/* ─── Admin Dark Theme ─────────────────────────────────────────────────── */
+
+.admin-dark {
+  --background: #0C1222;
+  --foreground: #f4f4f4;
+  --card: #162032;
+  --card-foreground: #f4f4f4;
+  --muted: #162032;
+  --muted-foreground: rgba(255, 255, 255, 0.5);
+  --border: rgba(255, 255, 255, 0.08);
+  --input: #0d1320;
+  --input-foreground: #f4f4f4;
+  --ring: #0D9488;
+  --popover: #0a0f1a;
+  --popover-foreground: #f4f4f4;
+  --accent: #0D9488;
+  --accent-foreground: #f4f4f4;
+  --destructive: #ef4444;
+  --destructive-foreground: #f4f4f4;
+  --secondary: #162032;
+  --secondary-foreground: #f4f4f4;
+  --primary: #0D9488;
+  --primary-foreground: #ffffff;
+
+  background-color: #0C1222;
+  color: #f4f4f4;
+}
+
+/* — Text color remaps — */
+.admin-dark .text-slate-900,
+.admin-dark .text-gray-900 {
+  color: #f4f4f4 !important;
+}
+
+.admin-dark .text-slate-800,
+.admin-dark .text-gray-800 {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.admin-dark .text-slate-700,
+.admin-dark .text-gray-700 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.admin-dark .text-slate-600,
+.admin-dark .text-gray-600 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.admin-dark .text-slate-500,
+.admin-dark .text-gray-500 {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.admin-dark .text-slate-400,
+.admin-dark .text-gray-400 {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+.admin-dark .text-slate-300,
+.admin-dark .text-gray-300 {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.admin-dark .text-indigo-600 {
+  color: #0D9488 !important;
+}
+
+.admin-dark .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.admin-dark .text-foreground {
+  color: #f4f4f4 !important;
+}
+
+/* — Background remaps — */
+.admin-dark .bg-white {
+  background-color: rgba(22, 32, 50, 0.5) !important;
+  backdrop-filter: blur(12px);
+}
+
+.admin-dark .bg-white\/50 {
+  background-color: rgba(22, 32, 50, 0.35) !important;
+}
+
+.admin-dark .bg-white\/95 {
+  background-color: rgba(22, 32, 50, 0.5) !important;
+}
+
+.admin-dark .bg-background {
+  background-color: #0C1222 !important;
+}
+
+.admin-dark .bg-background-light {
+  background-color: #0C1222 !important;
+}
+
+.admin-dark .bg-card {
+  background-color: rgba(22, 32, 50, 0.5) !important;
+}
+
+.admin-dark .bg-slate-50,
+.admin-dark .bg-gray-50 {
+  background-color: rgba(22, 32, 50, 0.4) !important;
+}
+
+.admin-dark .bg-slate-50\/30 {
+  background-color: rgba(22, 32, 50, 0.25) !important;
+}
+
+.admin-dark .bg-slate-50\/50,
+.admin-dark .bg-gray-50\/50 {
+  background-color: rgba(22, 32, 50, 0.3) !important;
+}
+
+.admin-dark .bg-slate-50\/80 {
+  background-color: rgba(22, 32, 50, 0.4) !important;
+}
+
+.admin-dark .bg-slate-100,
+.admin-dark .bg-gray-100 {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.admin-dark .bg-slate-100\/80 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.admin-dark .bg-indigo-50\/50 {
+  background-color: rgba(13, 148, 136, 0.08) !important;
+}
+
+.admin-dark .bg-emerald-50 {
+  background-color: rgba(34, 197, 94, 0.1) !important;
+}
+
+.admin-dark .bg-rose-50 {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.admin-dark .bg-green-100 {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+}
+
+/* — Border remaps — */
+.admin-dark .border-slate-200,
+.admin-dark .border-gray-200 {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.admin-dark .border-slate-100,
+.admin-dark .border-gray-100 {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.admin-dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.admin-dark .divide-gray-100 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.admin-dark .ring-slate-200 {
+  --tw-ring-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.admin-dark .bg-slate-200,
+.admin-dark .bg-gray-200 {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.admin-dark .bg-slate-300 {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+.admin-dark .ring-white {
+  --tw-ring-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* — Hover state remaps — */
+.admin-dark .hover\:bg-slate-50:hover,
+.admin-dark .hover\:bg-gray-50:hover {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.admin-dark .hover\:bg-slate-50\/50:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.admin-dark .hover\:bg-slate-100\/80:hover {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.admin-dark .hover\:text-slate-800:hover {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.admin-dark .hover\:text-slate-900:hover {
+  color: #f4f4f4 !important;
+}
+
+/* — SVG / Chart stroke remaps — */
+.admin-dark [stroke="#f1f5f9"] {
+  stroke: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* — Placeholder text — */
+.admin-dark .placeholder-slate-300::placeholder,
+.admin-dark .text-slate-300::placeholder {
+  color: rgba(255, 255, 255, 0.25) !important;
+}
+
+/* — Brand color remaps (indigo → teal) — */
+.admin-dark .bg-indigo-50,
+.admin-dark .bg-indigo-50\/50 {
+  background-color: rgba(13, 148, 136, 0.1) !important;
+}
+
+.admin-dark .text-indigo-600,
+.admin-dark .text-indigo-700 {
+  color: #0D9488 !important;
+}
+
+.admin-dark .bg-indigo-600 {
+  background-color: #0D9488 !important;
+}
+
+.admin-dark .hover\:bg-indigo-50:hover {
+  background-color: rgba(13, 148, 136, 0.15) !important;
+}
+
+.admin-dark .hover\:bg-indigo-300:hover,
+.admin-dark .hover\:border-indigo-300:hover {
+  border-color: rgba(13, 148, 136, 0.3) !important;
+}
+
+.admin-dark .hover\:text-indigo-600:hover,
+.admin-dark .hover\:text-indigo-500:hover {
+  color: #0D9488 !important;
+}
+
+.admin-dark .shadow-indigo-200,
+.admin-dark .shadow-indigo-100,
+.admin-dark .shadow-indigo-300 {
+  --tw-shadow-color: rgba(13, 148, 136, 0.15) !important;
+}
+
+.admin-dark .ring-indigo-500 {
+  --tw-ring-color: #0D9488 !important;
+}
+
+.admin-dark .hover\:bg-rose-50:hover {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+}
+
+.admin-dark .hover\:text-rose-600:hover {
+  color: #f87171 !important;
+}
+
+.admin-dark .bg-amber-50 {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+.admin-dark .text-amber-600 {
+  color: #fbbf24 !important;
+}
+
+/* — Status badge adjustments — */
+.admin-dark .text-green-800 {
+  color: #22c55e !important;
+}
+
+.admin-dark .text-emerald-600 {
+  color: #34d399 !important;
+}
+
+.admin-dark .text-rose-600 {
+  color: #f87171 !important;
+}
+
+/* — Input / Form elements — */
+.admin-dark input,
+.admin-dark select,
+.admin-dark textarea {
+  color: #f4f4f4;
+}
+
+.admin-dark input::placeholder,
+.admin-dark textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.admin-dark select option {
+  background-color: #162032;
+  color: #f4f4f4;
+}
+
+/* — Scrollbar for admin dark — */
+.admin-dark ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.admin-dark ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.admin-dark ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+}
+
+.admin-dark ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* — Blue → Teal global remaps for inline styles — */
+.admin-dark .bg-\[\#0D9488\] {
+  background-color: #0D9488 !important;
+}
+
+.admin-dark .text-\[\#0D9488\] {
+  color: #0D9488 !important;
+}
+
+.admin-dark .border-\[\#0D9488\] {
+  border-color: #0D9488 !important;
+}
+
+.admin-dark .bg-\[\#0D9488\]\/5 {
+  background-color: rgba(13, 148, 136, 0.05) !important;
+}
+
+.admin-dark .bg-\[\#0D9488\]\/10 {
+  background-color: rgba(13, 148, 136, 0.1) !important;
+}
+
+.admin-dark .border-\[\#0D9488\]\/50 {
+  border-color: rgba(13, 148, 136, 0.5) !important;
+}
+
+.admin-dark .shadow-\[\#0D9488\]\/20 {
+  --tw-shadow-color: rgba(13, 148, 136, 0.2) !important;
+}
+
+.admin-dark .hover\:bg-\[\#0043CE\]:hover {
+  background-color: #0F766E !important;
+}
+
+/* — Focus ring remaps — */
+.admin-dark .focus\:border-\[\#0D9488\]\/50:focus {
+  border-color: rgba(13, 148, 136, 0.5) !important;
+}
+
+.admin-dark .focus\:ring-\[\#0D9488\]\/30:focus {
+  --tw-ring-color: rgba(13, 148, 136, 0.3) !important;
+}

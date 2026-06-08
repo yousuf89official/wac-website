@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "The user's prompt may involve environment-specific actions (deploying, changing env vars, database operations, branch management, Vercel config, or production fixes).\n\nAnalyze the user's message. If it clearly targets a specific environment (e.g., mentions 'local', 'staging', 'production', 'deploy', 'database', 'env var', 'branch', 'vercel', 'mock db', 'neon'), respond ONLY with a multiple-choice question:\n\nWhich environment is this for?\n[L] Local — Mock DB, localhost:3000\n[S] Staging — staging branch, Neon staging DB, Vercel Preview\n[P] Production — main branch, Neon production DB, Vercel Production\n[A] All environments\n\nIf the prompt is purely about code logic, UI, bug fixes, or features that apply regardless of environment, respond with an empty string (no output). Only ask when the environment genuinely matters."
+          }
+        ]
+      }
+    ]
+  }
+}

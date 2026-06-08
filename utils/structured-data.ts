@@ -5,7 +5,7 @@ export interface BreadcrumbItem {
     href: string;
 }
 
-export function generateBreadcrumbSchema(items: BreadcrumbItem[], locale: string) {
+export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
     return {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
@@ -13,7 +13,7 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[], locale: string
             '@type': 'ListItem',
             position: index + 1,
             name: item.name,
-            item: `${SITE_URL}/${locale}${item.href}`,
+            item: `${SITE_URL}${item.href}`,
         })),
     };
 }
@@ -33,16 +33,15 @@ export function generateFAQSchema(faqs: { question: string; answer: string }[]) 
     };
 }
 
-export function generateLocalBusinessSchema(locale: string) {
+export function generateLocalBusinessSchema() {
     return {
         '@context': 'https://schema.org',
         '@type': 'LocalBusiness',
         '@id': `${SITE_URL}/#business`,
         name: 'We Are Collaborative',
-        description: locale === 'id'
-            ? 'Agensi pemasaran digital yang berfokus pada hasil. SEO, strategi konten, pemasaran performa, dan lainnya.'
-            : 'Results-driven digital marketing agency. SEO, content strategy, performance marketing, and more.',
-        url: `${SITE_URL}/${locale}`,
+        description:
+            'Results-driven digital marketing agency. SEO, content strategy, performance marketing, and more.',
+        url: SITE_URL,
         image: `${SITE_URL}/og?title=We+Are+Collaborative`,
         telephone: '+62-812-0000-0000',
         address: {
@@ -76,25 +75,25 @@ export function generateLocalBusinessSchema(locale: string) {
     };
 }
 
-export function generateWebSiteSchema(locale: string) {
+export function generateWebSiteSchema() {
     return {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: 'We Are Collaborative',
-        url: `${SITE_URL}/${locale}`,
-        inLanguage: locale,
+        url: SITE_URL,
+        inLanguage: 'en',
         potentialAction: {
             '@type': 'SearchAction',
             target: {
                 '@type': 'EntryPoint',
-                urlTemplate: `${SITE_URL}/${locale}/resources?q={search_term_string}`,
+                urlTemplate: `${SITE_URL}/resources?q={search_term_string}`,
             },
             'query-input': 'required name=search_term_string',
         },
     };
 }
 
-export function generateOrganizationSchema(locale: string) {
+export function generateOrganizationSchema() {
     return {
         '@context': 'https://schema.org',
         '@type': 'Organization',
@@ -109,9 +108,8 @@ export function generateOrganizationSchema(locale: string) {
             height: 100,
         },
         image: `${SITE_URL}/og?title=We+Are+Collaborative`,
-        description: locale === 'id'
-            ? 'Jaringan spesialis pemasaran, ahli strategi, dan kreator kelas dunia yang berdedikasi untuk pertumbuhan bisnis Anda.'
-            : 'A network of elite marketing specialists, strategists, and creative minds dedicated to your business growth.',
+        description:
+            'A network of elite marketing specialists, strategists, and creative minds dedicated to your business growth.',
         foundingDate: '2022',
         address: {
             '@type': 'PostalAddress',
@@ -122,7 +120,7 @@ export function generateOrganizationSchema(locale: string) {
             {
                 '@type': 'ContactPoint',
                 contactType: 'customer service',
-                availableLanguage: ['English', 'Indonesian'],
+                availableLanguage: ['English'],
             },
         ],
         sameAs: [
@@ -139,17 +137,16 @@ export function generateOrganizationSchema(locale: string) {
     };
 }
 
-export function generateProfessionalServiceSchema(locale: string) {
+export function generateProfessionalServiceSchema() {
     return {
         '@context': 'https://schema.org',
         '@type': 'ProfessionalService',
         '@id': `${SITE_URL}/#service`,
         name: 'We Are Collaborative',
-        url: `${SITE_URL}/${locale}`,
+        url: SITE_URL,
         image: `${SITE_URL}/og?title=We+Are+Collaborative`,
-        description: locale === 'id'
-            ? 'Layanan pemasaran digital premium: SEO, strategi konten, paid media, branding, dan pengembangan web.'
-            : 'Premium digital marketing services: SEO, content strategy, paid media, branding, and web development.',
+        description:
+            'Premium digital marketing services: SEO, content strategy, paid media, branding, and web development.',
         serviceType: [
             'SEO Services',
             'Content Marketing',
@@ -174,25 +171,8 @@ export function generateProfessionalServiceSchema(locale: string) {
     };
 }
 
-export function generateHomepageFAQSchema(locale: string) {
-    const faqs = locale === 'id' ? [
-        {
-            question: 'Apa itu We Are Collaborative?',
-            answer: 'We Are Collaborative (WAC) adalah jaringan spesialis pemasaran digital kelas dunia yang menyediakan layanan SEO, strategi konten, paid media, branding, dan pengembangan web untuk bisnis di Indonesia, Asia Tenggara, dan global.',
-        },
-        {
-            question: 'Layanan apa yang ditawarkan We Are Collaborative?',
-            answer: 'Kami menawarkan SEO & SEM, pemasaran konten, paid media (Google Ads, Meta Ads), strategi merek, pengembangan web, pemasaran media sosial, email marketing, dan analitik pemasaran.',
-        },
-        {
-            question: 'Berapa biaya layanan We Are Collaborative?',
-            answer: 'Biaya layanan kami bervariasi tergantung pada kebutuhan bisnis Anda. Silakan hubungi kami untuk mendapatkan penawaran yang disesuaikan dengan tujuan dan anggaran Anda.',
-        },
-        {
-            question: 'Di mana We Are Collaborative beroperasi?',
-            answer: 'Kami berbasis di Indonesia dan melayani klien di Indonesia, Singapura, Malaysia, Australia, dan Amerika Serikat.',
-        },
-    ] : [
+export function generateHomepageFAQSchema() {
+    const faqs = [
         {
             question: 'What is We Are Collaborative?',
             answer: 'We Are Collaborative (WAC) is a network of elite digital marketing specialists providing SEO, content strategy, paid media, branding, and web development services for businesses across Indonesia, Southeast Asia, and globally.',
@@ -202,7 +182,7 @@ export function generateHomepageFAQSchema(locale: string) {
             answer: 'We offer SEO & SEM, content marketing, paid media (Google Ads, Meta Ads), brand strategy, web development, social media marketing, email marketing, and marketing analytics.',
         },
         {
-            question: 'How much do We Are Collaborative\'s services cost?',
+            question: "How much do We Are Collaborative's services cost?",
             answer: 'Our service pricing varies depending on your business needs. Contact us for a custom quote tailored to your goals and budget.',
         },
         {

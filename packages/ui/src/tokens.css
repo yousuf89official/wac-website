@@ -1,0 +1,83 @@
+/* ──────────────────────────────────────────────────────────
+   Editorial Luxe — shared design tokens.
+   Imported by both apps via @import "@wac/ui/tokens.css".
+
+   Light is canonical; dark is an inverse that preserves the
+   warmth of the palette rather than going pure black/white.
+   Both share the sienna accent.
+   ────────────────────────────────────────────────────────── */
+
+:root,
+[data-theme="light"] {
+  --background: 36 36% 94%;        /* cream  #F5F1EA */
+  --background-2: 36 31% 88%;      /* cream-2 #EAE3D6 */
+  --foreground: 0 0% 4%;           /* ink    #0A0A0A */
+  --foreground-soft: 30 5% 40%;    /* fog    #6B6661 */
+
+  --card: 36 31% 88%;
+  --card-foreground: 0 0% 4%;
+
+  --popover: 36 36% 94%;
+  --popover-foreground: 0 0% 4%;
+
+  --primary: 11 56% 51%;           /* sienna #C8553D */
+  --primary-foreground: 36 36% 94%;
+
+  --secondary: 0 0% 4%;
+  --secondary-foreground: 36 36% 94%;
+
+  --muted: 33 17% 75%;             /* mist   #C9C2B8 */
+  --muted-foreground: 30 5% 40%;
+
+  --accent: 322 36% 26%;           /* plum   #5B2A4A */
+  --accent-foreground: 36 36% 94%;
+
+  --success: 96 14% 44%;           /* sage   #6B7F5F */
+  --warning: 40 65% 53%;           /* gold   #D4A23A */
+  --destructive: 11 56% 51%;
+  --destructive-foreground: 36 36% 94%;
+
+  --border: 30 5% 40% / 0.12;
+  --input: 30 5% 40% / 0.12;
+  --ring: 11 56% 51%;
+
+  --radius: 0.5rem;
+  --noise-opacity: 0.04;
+}
+
+[data-theme="dark"],
+.dark {
+  --background: 30 14% 7%;         /* ink-2  #14110F */
+  --background-2: 0 0% 4%;         /* ink    #0A0A0A */
+  --foreground: 36 36% 94%;        /* cream  #F5F1EA */
+  --foreground-soft: 33 17% 75%;   /* mist   #C9C2B8 */
+
+  --card: 0 0% 4%;
+  --card-foreground: 36 36% 94%;
+
+  --popover: 0 0% 4%;
+  --popover-foreground: 36 36% 94%;
+
+  --primary: 15 70% 61%;           /* sienna-soft #E07856 */
+  --primary-foreground: 0 0% 4%;
+
+  --secondary: 36 36% 94%;
+  --secondary-foreground: 0 0% 4%;
+
+  --muted: 30 5% 25%;
+  --muted-foreground: 33 17% 75%;
+
+  --accent: 15 70% 61%;
+  --accent-foreground: 0 0% 4%;
+
+  --success: 96 14% 54%;
+  --warning: 40 65% 60%;
+  --destructive: 15 70% 61%;
+  --destructive-foreground: 0 0% 4%;
+
+  --border: 36 36% 94% / 0.08;
+  --input: 36 36% 94% / 0.08;
+  --ring: 15 70% 61%;
+
+  --noise-opacity: 0.06;
+}

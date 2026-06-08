@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { themeUpdateSchema } from '@/lib/validations';
 
+export const revalidate = 300; // 5min ISR
+
 export async function PUT(req: Request) {
     const auth = await requireAuth();
     if (auth instanceof NextResponse) return auth;

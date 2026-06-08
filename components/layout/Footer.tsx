@@ -1,9 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useLocale, useTranslations } from 'next-intl';
-import { useRouter, usePathname } from '@/lib/i18n/navigation';
 import { useGlobalContent } from '@/hooks/useContent';
-import { routing } from '@/lib/i18n/routing';
 
 interface FooterProps {
   onAdminClick?: () => void;
@@ -11,20 +8,12 @@ interface FooterProps {
 
 const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
   const { data, isLoading } = useGlobalContent();
-  const locale = useLocale();
-  const t = useTranslations('footer');
-  const router = useRouter();
-  const pathname = usePathname();
 
   const navLinks = data?.navLinks;
   const brand = data?.brand;
   const socialLinks = data?.socialLinks;
 
   const currentYear = new Date().getFullYear();
-
-  const switchLocale = (newLocale: string) => {
-    router.replace(pathname, { locale: newLocale });
-  };
 
   return (
     <footer className="relative bg-background py-[var(--section-padding)] overflow-hidden border-t border-white/5">
@@ -96,7 +85,7 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
             </ul>
           </div>
 
-          {/* Contact Info + Locale */}
+          {/* Contact Info */}
           <div>
             <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-8">Contact</h4>
             <ul className="flex flex-col gap-4">
@@ -111,41 +100,21 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
                 Melbourne, Australia
               </li>
             </ul>
-
-            {/* Footer Locale Switcher */}
-            <div className="mt-8">
-              <p className="text-gray-500 text-[10px] font-black uppercase tracking-[0.3em] mb-3">Language</p>
-              <div className="flex items-center gap-1 bg-white/5 rounded-full p-1 w-fit">
-                {routing.locales.map((l) => (
-                  <button
-                    key={l}
-                    onClick={() => switchLocale(l)}
-                    className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${
-                      locale === l
-                        ? 'bg-primary text-black'
-                        : 'text-gray-500 hover:text-white'
-                    }`}
-                  >
-                    {l === 'en' ? 'English' : 'Bahasa'}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-gray-600 text-xs font-medium uppercase tracking-widest">
-            &copy; {currentYear} {brand?.name}. {t('rights')}
+            &copy; {currentYear} {brand?.name}. All rights reserved.
           </p>
 
           <div className="flex items-center gap-8">
             <a href="#" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
-              {t('privacy')}
+              Privacy Policy
             </a>
             <a href="#" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
-              {t('terms')}
+              Terms of Service
             </a>
             {onAdminClick && (
               <button

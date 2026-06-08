@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { requireAuth } from '@/lib/auth';
 import { processStepCreateSchema } from '@/lib/validations';
 
+export const revalidate = 300; // 5min ISR
+
 export async function GET() {
     try {
         const steps = await prisma.processStep.findMany({ orderBy: { order: 'asc' } });

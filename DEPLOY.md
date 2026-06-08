@@ -1,75 +1,78 @@
-# Deployment Guide: We Are Collaborative
+# Deployment Guide — WAC Platform (Vercel monorepo)
 
-This guide outlines how to deploy the project to **Staging** and **Production** environments using **GitHub** and **Hostinger**.
+This repo is a **monorepo** deployed to **Vercel** (team `wearecollaborative`). Each app is a
+separate Vercel **project** that builds from its own **Root Directory** in this one repo. There are
+no per-app repos — **branches are environments**: `main` = production, `staging` = staging.
 
-## 1. GitHub Repository Setup
-1. Create a new private repository on GitHub.
-2. Link your local project:
-   ```bash
-   git remote add origin https://github.com/your-username/wac-website.git
-   git push -u origin main
-   ```
-3. Create a `staging` branch:
-   ```bash
-   git checkout -b staging
-   git push origin staging
-   ```
+```
+repo: wac-website (monorepo; the repo ROOT is the public site)
+.              → Vercel project "wac-website"                  → wearecollaborative.net
+├── apps/ci      → Vercel project "collaborative-intelligence" → intelligence.wearecollaborative.net
+└── apps/backend → Vercel project "wac-backend" (Phase 2)      → app.wearecollaborative.net
+packages/ui, packages/db (shared)
+```
 
-## 2. Hostinger Configuration (Cloud Professional)
-Your plan includes **Managed Node.js Hosting**, which is the ideal way to host this Next.js app.
+The public site reads its Postgres **directly** (server components). The backend app
+(`apps/backend`, Phase 2) owns auth + customer portal + admin + checkout and issues the shared
+`wac-customer-token` JWT (cookie scoped to `.wearecollaborative.net`, so all three surfaces read it).
 
-### Steps in Hostinger hPanel:
-1.  **Add Website/Subdomain**: Create a new subdomain (e.g., `staging.wearecollaborative.net`) or use your main domain.
-2.  **Node.js Dashboard**: Navigate to **Advanced** -> **Node.js** in your hPanel.
-3.  **Setup Node.js**:
-    *   **Node.js version**: 20.x or 22.x.
-    *   **Application Root**: `/staging` (or your chosen path).
-    *   **Application URL**: Your domain/subdomain.
-    *   **Application Mode**: `development` (for staging) or `production`.
-4.  **Connect GitHub**:
-    *   In the Node.js dashboard, click **Git**.
-    *   Connect your repository: `https://github.com/yousuf89official/wac-website.git`.
-    *   Select the **staging** branch.
-5.  **Environment Variables**:
-    *   Click **Environment Variables** in the Node.js menu.
-    *   Add:
-        *   `DATABASE_URL`: Your Hostinger MySQL connection string.
-        *   `AIzaSyCa2--y8kqxxFRRuKR5NvmupFiD8fEMDOY`: Your Gemini key.
-        *   `NEXT_PUBLIC_STAGING`: `true`.
-        *   `NEXTAUTH_SECRET`: A secure random string.
+## 1. Per-project Vercel settings (dashboard — Settings → General)
 
-### Deployment Commands:
-In the Hostinger Node.js terminal or via **Deployment Manager**:
-1.  `npm install`
-2.  `npx prisma generate`
-3.  `npm run build`
-4.  **Startup File**: Set this to `node_modules/next/dist/bin/next` with the argument `start`.
+For **each** project, set:
+- **Root Directory**: `.` (repo root → wac-website) · `apps/ci` (collaborative-intelligence) · `apps/backend` (wac-backend).
+- **Include files outside the root directory**: **ON** for the nested apps (so `packages/*` are available). The root project already sees everything.
+- **Framework Preset**: Next.js. **Node**: 24.x. **Install Command**: default (`npm install`).
+- Build runs the app's `postinstall` (`prisma generate`) automatically.
 
-## 3. Environment Variables
-Set these in the **Hostinger Node.js Dashboard** or via a `.env` file on the server:
-- `DATABASE_URL`
-- `GOOGLE_GENERATIVE_AI_API_KEY`
-- `NEXT_PUBLIC_SITE_URL`
-- `NEXTAUTH_SECRET` (Generate using `openssl rand -base64 32`)
+Branch → domain mapping (Settings → Domains / Git):
+- `main` → production domains (e.g. `wearecollaborative.net`, `www.…`).
+- `staging` branch → `staging.<domain>` (Preview deployment with a stable branch alias).
 
-## 4. GitHub Actions (CI/CD)
-The project is configured with a verification workflow in `.github/workflows/verify.yml`.
-- Every push to `main` (Production) or `staging` will automatically trigger a build check.
-- If the build fails, the deploy should not proceed.
+## 2. Environments & branches
 
-## 5. Troubleshooting
+- `staging` branch push → `staging.*` domain, talking only to **staging** peers + the Neon
+  **`staging`** branch. `main` push → production domains + Neon **`main`** branch.
+- **Never cross environments** (prod site must not call staging APIs or DB, and vice-versa).
+- The Neon branch is selected purely by which connection string is set in that Vercel
+  environment scope — see §3.
 
-### "Application Error: A client-side exception has occurred"
-This generic error happens when the React application crashes on the client.
-1.  **Check the Screen**: We have implemented a Global Error Boundary. Refresh the page to see the specific error message (e.g., "Cannot read property 'map' of undefined").
-2.  **Hard Refresh**: Clear your browser cache (`Cmd+Shift+R` or `Ctrl+F5`) to ensure you are not serving stale files.
-3.  **Check Environment Variables**: Ensure `NEXT_PUBLIC_SITE_URL` and `DATABASE_URL` are set correctly in Hostinger.
+## 3. Environment variables (Vercel → Settings → Environment Variables)
 
-### "503 Service Unavailable"
-This usually means the Next.js server is starting up or failed to start.
-1.  Wait 1-2 minutes after deployment.
-2.  Check **Deployment Logs** in Hostinger for startup errors.
+Set per project, scoped **Production** and **Preview** (Preview = the `staging` branch).
+See [`apps/wac/.env.example`](.env.example) for the full wac list. Key points:
 
-### "404 Not Found"
-1.  If on an API route: Ensure your `.htaccess` (if using one) or Hostinger routing configuration is correct.
-2.  If on a page: Ensure you are building into the correct directory (`.next` usually, not `dist`).
+- `DATABASE_URL` / `DIRECT_URL`: Production scope → Neon `main` branch; Preview scope → Neon
+  `staging` branch. (Neon projects: wac-website `restless-feather-64294935`,
+  wac-backend `misty-mountain-87002269`, collaborative-intelligence `damp-bar-65324140`.)
+- `JWT_SECRET`: **identical** value across all three projects (shared-cookie verification).
+- `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_CI_URL`: the apex / app / intelligence
+  URLs for the matching environment (prod vs `staging.*`).
+- Secrets (`GOOGLE_GENERATIVE_AI_API_KEY`, `MIDTRANS_*`): set as Vercel env vars — never commit.
+
+## 4. Neon Postgres
+
+- Each app owns its own Neon project. Create a **`staging`** branch in the `wac-website` and
+  `wac-backend` Neon projects (collaborative-intelligence already has one), then paste its pooled +
+  direct strings into that project's **Preview** `DATABASE_URL` / `DIRECT_URL`.
+- Schema: `DATABASE_URL="<neon-direct>" npx prisma db push` from the app dir (no migration history
+  today). To preserve existing data from another source, see `apps/wac/scripts/migrate-to-neon.cjs`.
+
+## 5. CI/CD
+
+- Vercel auto-deploys on push: `main` → production, `staging` → preview alias. No manual `vercel`
+  needed once Git is connected.
+- `.github/workflows/verify.yml` runs a build check on push.
+- `apps/ci/vercel.json` defines the cron jobs (sync, reports, alerts, rules) — production only.
+
+## 6. Verify a deploy
+
+```bash
+curl https://wearecollaborative.net/api/health             # { ok, env: "production", commit }
+curl https://staging.wearecollaborative.net/api/health     # { ok, env: "preview", commit }
+```
+
+## ⚠️ Secrets hygiene
+
+A Gemini API key was previously committed in this file in plaintext. It has been removed, but it
+**remains in git history** — rotate it in Google AI Studio and store the new value only as a Vercel
+env var.

@@ -128,11 +128,12 @@ async function main() {
 
     // 5. NavLinks (updated for multi-page)
     const navLinks = [
-        { label: 'Services', href: '/services', order: 1 },
-        { label: 'Academy', href: '/academy', order: 2 },
-        { label: 'Resources', href: '/resources', order: 3 },
-        { label: 'About', href: '/about', order: 4 },
-        { label: 'Contact', href: '#contact', order: 5 },
+        { label: 'Intelligence', href: '/intelligence', order: 1 },
+        { label: 'Services', href: '/services', order: 2 },
+        { label: 'Academy', href: '/academy', order: 3 },
+        { label: 'Resources', href: '/resources', order: 4 },
+        { label: 'About', href: '/about', order: 5 },
+        { label: 'Contact', href: '#contact', order: 6 },
     ];
 
     for (const link of navLinks) {

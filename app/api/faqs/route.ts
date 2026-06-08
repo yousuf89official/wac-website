@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
+export const revalidate = 300; // 5min ISR
+
 export async function GET(req: NextRequest) {
     const page = req.nextUrl.searchParams.get('page');
     const locale = req.nextUrl.searchParams.get('locale') || 'en';

@@ -48,6 +48,18 @@ export async function verifyCustomerToken(token: string): Promise<CustomerTokenP
 
 // ── Cookies ──────────────────────────────────
 
+/**
+ * Domain attribute scoped to the parent so the cookie is visible on both the
+ * apex (wac) and the intelligence subdomain (ci). Required for the SSO bridge
+ * — see apps/ci/src/lib/wac-auth.ts.
+ *
+ * In dev (localhost), we leave domain undefined — browsers reject Domain= on
+ * non-public-suffix hosts.
+ */
+const COOKIE_DOMAIN = process.env.NODE_ENV === 'production'
+    ? (process.env.COOKIE_DOMAIN || '.wearecollaborative.net')
+    : undefined;
+
 export async function setCustomerCookie(token: string) {
     const cookieStore = await cookies();
     cookieStore.set(COOKIE_NAME, token, {
@@ -55,13 +67,22 @@ export async function setCustomerCookie(token: string) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         path: '/',
+        domain: COOKIE_DOMAIN,
         maxAge: 60 * 60 * 24 * 30, // 30 days
     });
 }
 
 export async function clearCustomerCookie() {
     const cookieStore = await cookies();
-    cookieStore.delete(COOKIE_NAME);
+    // Must match the domain used on set, otherwise browser keeps the cookie.
+    cookieStore.set(COOKIE_NAME, '', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+        domain: COOKIE_DOMAIN,
+        maxAge: 0,
+    });
 }
 
 export async function getCustomerCookie(): Promise<string | undefined> {
