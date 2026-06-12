@@ -111,8 +111,11 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
             <a href="/privacy" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
               Privacy Policy
             </a>
-            <a href="#" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
+            <a href="/terms" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
               Terms of Service
+            </a>
+            <a href="/data-deletion" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
+              Data Deletion
             </a>
             {onAdminClick && (
               <button
