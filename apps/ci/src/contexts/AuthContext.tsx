@@ -12,15 +12,12 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
 import { type User } from "../services/api";
 
-const WAC_BASE_URL = process.env.NEXT_PUBLIC_WAC_URL || "https://wearecollaborative.net";
-
 interface AuthContextType {
     user: User | null;
     /**
-     * Compat shim — old call sites passed (email, password). New world: WAC
-     * owns the credentials form. This method now redirects to WAC's /login
-     * with a returnTo back to the current URL. Returns true synchronously to
-     * preserve old call-site shape; the actual auth happens after redirect.
+     * Compat shim — old call sites passed (email, password). CI now has its own
+     * /login page, so this redirects there. Returns true synchronously to
+     * preserve the old call-site shape.
      */
     login: (email?: string, password?: string) => Promise<boolean>;
     logout: () => Promise<void>;
@@ -69,16 +66,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = useCallback(async () => {
         if (typeof window === "undefined") return false;
-        const returnTo = encodeURIComponent(window.location.href);
-        window.location.href = `${WAC_BASE_URL}/login?returnTo=${returnTo}`;
+        window.location.href = "/login";
         return true;
     }, []);
 
     const logout = useCallback(async () => {
-        await fetch("/api/auth-logout", { method: "POST" });
+        await fetch("/api/auth/logout", { method: "POST" });
         setUser(null);
         if (typeof window !== "undefined") {
-            window.location.href = `${WAC_BASE_URL}/`;
+            window.location.href = "/login";
         }
     }, []);
 

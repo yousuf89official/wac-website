@@ -1,11 +1,18 @@
 generator client {
   provider = "prisma-client-js"
+  // Private output so the backend uses ITS OWN client (reading WAC_DATABASE_URL),
+  // not the hoisted root @prisma/client which the apex generates from its schema
+  // (reading DATABASE_URL → the wrong, integration-provisioned database).
+  output   = "../lib/generated/prisma"
 }
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // Dedicated var names so the Neon marketplace integration (which owns
+  // DATABASE_URL on this project and points it at an empty auto-provisioned DB)
+  // can't clobber our connection to the shared WAC database (ep-fancy-star).
+  url       = env("WAC_DATABASE_URL")
+  directUrl = env("WAC_DIRECT_URL")
 }
 
 model User {
