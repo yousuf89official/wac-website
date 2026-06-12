@@ -6,14 +6,14 @@
  *   - APP_URL   authenticated app (login/portal/admin)     ← app.wearecollaborative.net (Phase 2)
  *   - CI_URL    Collaborative Intelligence product          ← intelligence.wearecollaborative.net
  *
- * PHASE 1: login/dashboard/checkout still live on the apex, so NEXT_PUBLIC_APP_URL
- * is unset and the helpers below return RELATIVE paths — behaviour is unchanged.
- * PHASE 2: set NEXT_PUBLIC_APP_URL=https://app.wearecollaborative.net and every
- * cross-link flips to the subdomain with no code change.
+ * The app (auth/portal/checkout) now lives on its own subdomain after the
+ * Phase-2 extraction, so APP_URL defaults to app.wearecollaborative.net. In
+ * local dev, NEXT_PUBLIC_APP_URL points at the local backend (e.g. :3001).
  */
 export const SITE_URL =
     process.env.NEXT_PUBLIC_SITE_URL || 'https://wearecollaborative.net';
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || '';
+export const APP_URL =
+    process.env.NEXT_PUBLIC_APP_URL || 'https://app.wearecollaborative.net';
 export const CI_URL =
     process.env.NEXT_PUBLIC_CI_URL || 'https://intelligence.wearecollaborative.net';
 

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useGlobalContent } from '@/hooks/useContent';
+import { loginUrl, registerUrl } from '@/lib/urls';
 import { useActiveSection } from '@/hooks/useActiveSection';
 import { useLenis } from 'lenis/react';
 
@@ -145,7 +146,18 @@ const Header: React.FC = () => {
     return () => window.removeEventListener('keydown', handleEsc);
   }, []);
 
-  const navLinks = data?.navLinks;
+  // Nav from the DB, with the Collaborative Intelligence product link injected
+  // after Services (idempotent — won't duplicate if it's later added in the DB).
+  const navLinks = (() => {
+    const base: any[] = data?.navLinks ? [...data.navLinks] : [];
+    if (!base.some((l) => l.href === '/intelligence')) {
+      const intel = { id: 'intelligence', label: 'Intelligence', href: '/intelligence' };
+      const i = base.findIndex((l) => l.href === '/services');
+      if (i >= 0) base.splice(i + 1, 0, intel);
+      else base.push(intel);
+    }
+    return base;
+  })();
   const brand = data?.brand;
   const socialLinks = data?.socialLinks || [];
 
@@ -295,8 +307,29 @@ const Header: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* ── Column 2: Info / social ── */}
-                  <div className="lg:col-span-3 lg:col-start-9">
+                  {/* ── Members (register / sign in on the app subdomain) ── */}
+                  <div className="lg:col-span-2 lg:col-start-7">
+                    <ColumnLabel>Members</ColumnLabel>
+                    <div className="flex flex-col gap-1">
+                      <motion.a
+                        variants={itemVariants}
+                        href={registerUrl()}
+                        className="text-sm text-white/40 hover:text-white transition-colors duration-300 py-1.5"
+                      >
+                        Become a Member
+                      </motion.a>
+                      <motion.a
+                        variants={itemVariants}
+                        href={loginUrl()}
+                        className="text-sm text-white/40 hover:text-white transition-colors duration-300 py-1.5"
+                      >
+                        Member Login
+                      </motion.a>
+                    </div>
+                  </div>
+
+                  {/* ── Column 3: Info / social ── */}
+                  <div className="lg:col-span-3 lg:col-start-10">
                     <ColumnLabel>Social</ColumnLabel>
                     <div className="flex flex-col gap-1">
                       {(socialLinks.length > 0 ? socialLinks : [{ id: 'ig', platform: 'Instagram', url: '#' }, { id: 'li', platform: 'LinkedIn', url: '#' }, { id: 'tw', platform: 'Twitter', url: '#' }]).map((link: any) => (

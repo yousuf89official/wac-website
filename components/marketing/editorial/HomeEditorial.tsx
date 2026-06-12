@@ -2,6 +2,8 @@ import prisma from "@/lib/prisma";
 import { HeroEditorial } from "./HeroEditorial";
 import { ManifestoSection } from "./ManifestoSection";
 import { ServicesTriptych } from "./ServicesTriptych";
+import { AcademySection, type AcademyCourse } from "./AcademySection";
+import { IntelligenceSection } from "./IntelligenceSection";
 import { PersonalizedFeed } from "./PersonalizedFeed";
 import { CTAFinale } from '@wac/ui/CTAFinale';
 import type { Category } from "@/lib/personalization";
@@ -66,13 +68,35 @@ async function loadFeed(): Promise<FeedItem[]> {
     return items;
 }
 
+async function loadCourses(): Promise<AcademyCourse[]> {
+    const courses = await prisma.course
+        .findMany({
+            where: { isPublished: true },
+            orderBy: [{ isFeatured: "desc" }, { order: "asc" }],
+            take: 3,
+            select: {
+                id: true,
+                slug: true,
+                title: true,
+                description: true,
+                level: true,
+                duration: true,
+                category: true,
+            },
+        })
+        .catch(() => []);
+    return courses;
+}
+
 export async function HomeEditorial() {
-    const feed = await loadFeed();
+    const [feed, courses] = await Promise.all([loadFeed(), loadCourses()]);
     return (
         <>
             <HeroEditorial />
             <ManifestoSection />
             <ServicesTriptych />
+            <AcademySection courses={courses} />
+            <IntelligenceSection />
             {feed.length > 0 && <PersonalizedFeed items={feed} />}
             <CTAFinale />
         </>
