@@ -15,6 +15,15 @@ const nextConfig = {
     typescript: {
         ignoreBuildErrors: false,
     },
+    // Monorepo resolution fix: @wac/ui is a symlinked workspace package, and its
+    // deps (lucide-react, framer-motion) are installed under apps/ci/node_modules
+    // — not hoisted to the repo root — when Vercel builds with rootDirectory=apps/ci.
+    // Default symlink resolution follows packages/ui's realpath, whose walk-up
+    // never sees apps/ci/node_modules. Resolving through the symlink location does.
+    webpack: (config) => {
+        config.resolve.symlinks = false;
+        return config;
+    },
     transpilePackages: [
         '@wac/ui',
         '@wac/agents',

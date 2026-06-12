@@ -13,7 +13,7 @@
     "build": "next build",
     "start": "next start -p 3003",
     "lint": "next lint",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate || true",
     "db:push": "npx prisma db push",
     "db:seed": "node prisma/seed.cjs",
     "db:hash-passwords": "npx tsx scripts/hash-passwords.ts",
