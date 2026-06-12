@@ -26,6 +26,23 @@ const nextConfig = {
             { protocol: 'https', hostname: 'images.unsplash.com' },
         ],
     },
+    // The app surfaces (auth/portal/checkout/admin) moved to the backend at
+    // app.wearecollaborative.net in the Phase-2 extraction. Redirect the old
+    // apex URLs so bookmarks and indexed links keep working.
+    async redirects() {
+        const APP = process.env.NEXT_PUBLIC_APP_URL || 'https://app.wearecollaborative.net';
+        return [
+            { source: '/login', destination: `${APP}/login`, permanent: true },
+            { source: '/register', destination: `${APP}/register`, permanent: true },
+            { source: '/forgot-password', destination: `${APP}/forgot-password`, permanent: true },
+            { source: '/reset-password/:path*', destination: `${APP}/reset-password/:path*`, permanent: true },
+            { source: '/dashboard', destination: `${APP}/dashboard`, permanent: true },
+            { source: '/dashboard/:path*', destination: `${APP}/dashboard/:path*`, permanent: true },
+            { source: '/checkout', destination: `${APP}/checkout`, permanent: true },
+            { source: '/checkout/:path*', destination: `${APP}/checkout/:path*`, permanent: true },
+            { source: '/admin', destination: `${APP}/admin`, permanent: true },
+        ];
+    },
     async headers() {
         return [
             {
