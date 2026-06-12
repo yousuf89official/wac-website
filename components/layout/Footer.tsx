@@ -108,7 +108,7 @@ const Footer: React.FC<FooterProps> = ({ onAdminClick }) => {
           </p>
 
           <div className="flex items-center gap-8">
-            <a href="#" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
+            <a href="/privacy" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">
               Privacy Policy
             </a>
             <a href="#" className="text-gray-600 hover:text-white text-[10px] font-bold uppercase tracking-widest transition-colors">

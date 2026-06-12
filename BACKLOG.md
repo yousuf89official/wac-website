@@ -1,5 +1,62 @@
 # Backlog
 
+> ⚠️ The sections from "🚦 Pre-Launch Checklist" downward predate the 2026-06 restructure
+> (they assume `apps/wac` root + Supabase + pre-extraction). Treat the **Active Backlog**
+> below as the source of truth; mine the older sections for still-valid cleanup items only.
+
+---
+
+## 📍 ACTIVE BACKLOG — as of 2026-06-08
+
+**Where things stand:** Public marketing site is **LIVE** on `wearecollaborative.net`
+(Vercel prod, commit `7cfd3d0`, reading **Neon**). Repo root = public site (marketing-only);
+`apps/backend` (auth/dashboard/admin/checkout) and `apps/ci` (Collaborative Intelligence)
+are extracted but **not deployed**. Auth/checkout CTAs on the public site are **hidden** until
+the backend ships. Vercel auto-deploys are OFF (manual `vercel --prod` only). Work lives on
+branch `restructure/phase1-public-front-seo-routing` (NOT merged to `main`).
+
+### 🔴 P0 — blocking the next phase
+- **Deploy the backend** → `app.wearecollaborative.net` (Vercel project `wac-backend`, Root Dir `apps/backend`).
+  Env: `DATABASE_URL`/`DIRECT_URL` = WAC Neon (`ep-fancy-star`), `JWT_SECRET` (shared), `MIDTRANS_*`,
+  `GOOGLE_GENERATIVE_AI_API_KEY`, `COOKIE_DOMAIN=.wearecollaborative.net`. Map domain + DNS.
+- **Re-enable the public-site auth/checkout CTAs once backend is live:** set prod
+  `NEXT_PUBLIC_APP_URL=https://app.wearecollaborative.net`; un-hide header Login/Register +
+  Portal menu (Header.tsx); repoint "Get Started"/"Enroll Now" from `/#contact` back to
+  `checkoutUrl(...)` (PackagesTriptych.tsx, academy/[slug]/page.tsx).
+- **Real `JWT_SECRET` in production**, identical across public/backend/ci (currently the dev
+  placeholder `dev-jwt-secret-change-in-production`).
+- **Rotate the Gemini API key** — it's in DEPLOY.md git history (commit b38f853-era). Still not rotated.
+
+### 🟠 P1 — important
+- **CI master/admin can't access CI:** admin login issues `wac-auth-token` (host-only), but CI
+  reads `wac-customer-token`. The master account `yousuf@wearecollaborative.net` can't SSO into CI.
+  Fix `/api/customer/login` to also issue the customer token for admin/master. (Customer login works.)
+- **Deploy CI** → `intelligence.wearecollaborative.net` (project `collaborative-intelligence`).
+  Apply the `User.wacCustomerId` column to CI's **production** Neon branch (only the dev branch got
+  `prisma db push` this session). The `@wac/ui` ThemeProvider fix is already committed.
+- **Vercel Preview env scope (wac-website) is missing `DATABASE_URL`/`DIRECT_URL`** → preview/branch
+  deploys fail at static-gen. Add the Neon vars to Preview scope (or "All Environments").
+- **Supabase decommission decision:** prod is on Neon now; Supabase is a divergent one-time-copy
+  backup. Decide to decommission or keep warm. (`.env.supabase.bak` rollback files kept locally, gitignored.)
+- **Merge `restructure/phase1-public-front-seo-routing` → `main`** so `main` reflects what's live.
+
+### 🟡 P2 — public-site polish (deferred from launch)
+- **#contact lead form:** the hidden CTAs now point to `/#contact` — confirm that section has a real
+  working lead form posting to `POST /api/leads` (old B-2 flagged the homepage lost its contact funnel).
+- **Footer dead links:** Privacy Policy + Terms of Service are `href="#"` — build the pages or remove.
+- **Harden remaining marketing pages' direct Prisma reads** against DB cold-starts (only the root
+  layout `generateMetadata` was wrapped this session; see old B-5 for the `cache()` half).
+- Social X handle mismatch (`wearecollab` vs `wearecollaborative`); placeholder phone in structured-data (B-16).
+
+### 🟢 P3 — architecture / tech-debt
+- `@wac/agents` is definitions-only (JARVIS + 13 specialists) — expose agent API routes if/when used.
+- Extract `packages/db` (`@wac/db`) shared Prisma client (Phase-2 plan); both WAC apps import it.
+- No tests yet — API route + E2E funnel tests.
+- Email integration (password-reset, order-confirmation) — `TODO` markers in code.
+- Older code-review items **B-11…B-20** below (component dedup, indexes, cookie `Secure`) mostly still valid.
+
+---
+
 ## 🚦 Pre-Launch Checklist (Intelligence integration — ops you must do before deploy)
 
 Architecture decision (locked in 2026-06-05):
