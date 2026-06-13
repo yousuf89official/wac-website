@@ -1,15 +1,15 @@
 /**
  * CI-native session auth.
  *
- * Collaborative Intelligence has its OWN user base and login, separate from the
- * WAC backend's customers. CI users authenticate against CI's own `User` table
- * and receive this `ci-session` cookie — a JWT signed with JWT_SECRET but with a
- * distinct `type: "ci"` claim and a HOST-ONLY cookie (no Domain attribute), so a
- * CI session never leaks to app.wearecollaborative.net or the apex.
+ * Collaborative Intelligence is a fully independent product — separate database,
+ * separate user base, separate login from the WAC backend. CI users authenticate
+ * against CI's own `User` table and receive this `ci-session` cookie: a JWT with
+ * a distinct `type: "ci"` claim and a HOST-ONLY cookie (no Domain attribute), so
+ * it never leaks to app.wearecollaborative.net or the apex.
  *
- * The ONLY cross-product identity is the master admin, who bridges in via the
- * shared `wac-customer-token` (see ./wac-auth.ts + ./session.ts). Regular CI
- * users and regular WAC customers stay fully separate.
+ * There is no cross-product bridge. The master admin signs in here with a CI
+ * password like anyone else (just with the `masteradmin` role). MASTER_EMAIL is
+ * kept only to reserve that address from public self-registration.
  */
 
 import { SignJWT, jwtVerify } from "jose";
@@ -22,7 +22,7 @@ const JWT_SECRET = new TextEncoder().encode(
 export const CI_COOKIE_NAME = "ci-session";
 const TOKEN_EXPIRY = "30d";
 
-/** The single identity allowed to bridge across both products. */
+/** Reserved from public self-registration; provisioned as `masteradmin`. */
 export const MASTER_EMAIL = "yousuf@wearecollaborative.net";
 
 export interface CiSessionPayload {

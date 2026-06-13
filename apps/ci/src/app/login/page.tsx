@@ -2,10 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Loader2, Eye, EyeOff, ArrowUpRight } from 'lucide-react';
-
-const WAC_BASE_URL = process.env.NEXT_PUBLIC_WAC_URL || 'https://app.wearecollaborative.net';
-const CI_URL = process.env.NEXT_PUBLIC_CI_URL || 'https://intelligence.wearecollaborative.net';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
 
 export default function CILoginPage() {
     const [email, setEmail] = useState('');
@@ -36,8 +33,6 @@ export default function CILoginPage() {
             setLoading(false);
         }
     };
-
-    const masterHref = `${WAC_BASE_URL}/login?returnTo=${encodeURIComponent(CI_URL)}`;
 
     return (
         <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
@@ -119,14 +114,6 @@ export default function CILoginPage() {
                         </Link>
                     </p>
                 </form>
-
-                <a
-                    href={masterHref}
-                    className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground"
-                >
-                    Master admin? Sign in via WAC
-                    <ArrowUpRight className="h-3.5 w-3.5" />
-                </a>
             </div>
         </div>
     );

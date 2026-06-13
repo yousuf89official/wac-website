@@ -55,9 +55,8 @@ export default function LoginPage() {
                 return;
             }
 
-            // Redirect based on user type. Customers may carry a ?returnTo=
-            // (e.g. bounced from the CI subdomain) — honor it after validation.
-            // Cross-origin returnTo needs a full navigation, not router.push.
+            // Redirect by user type. Customers may carry a ?returnTo= (honored
+            // after validation); admins always go to the backend admin dashboard.
             const returnTo = safeReturnTo(
                 new URLSearchParams(window.location.search).get('returnTo')
             );

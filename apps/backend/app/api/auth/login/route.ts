@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { verifyPassword, createToken, setAuthCookie } from '@/lib/auth';
 import { loginSchema } from '@/lib/validations';
 import { checkRateLimit } from '@/lib/rate-limit';
-import { isMaster, setMasterBridgeCookie } from '@/lib/master-bridge';
 
 export async function POST(req: Request) {
     const ip = req.headers.get('x-forwarded-for') || req.headers.get('x-real-ip') || 'unknown';
@@ -46,12 +45,6 @@ export async function POST(req: Request) {
         });
 
         await setAuthCookie(token);
-
-        // Master admin is the only identity that bridges into CI — give them
-        // the shared customer cookie too.
-        if (isMaster(user.email)) {
-            await setMasterBridgeCookie(user);
-        }
 
         return NextResponse.json({
             success: true,

@@ -3,7 +3,6 @@ import prisma from '@/lib/prisma';
 import { customerLoginSchema } from '@/lib/validations';
 import { verifyPassword as verifyCustomerPassword, createCustomerToken, setCustomerCookie } from '@/lib/auth-customer';
 import { verifyPassword as verifyAdminPassword, createToken as createAdminToken, setAuthCookie } from '@/lib/auth';
-import { isMaster, setMasterBridgeCookie } from '@/lib/master-bridge';
 
 export async function POST(req: NextRequest) {
     try {
@@ -59,12 +58,6 @@ export async function POST(req: NextRequest) {
                 role: admin.role,
             });
             await setAuthCookie(token);
-
-            // Master admin is the only identity that bridges into CI — give them
-            // the shared customer cookie too.
-            if (isMaster(admin.email)) {
-                await setMasterBridgeCookie(admin);
-            }
 
             return NextResponse.json({
                 userType: 'admin',
