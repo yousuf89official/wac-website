@@ -884,7 +884,7 @@ model CampaignDraft {
   campaignId    String
   brandId       String
   status        String   @default("drafting") // drafting | ready | approved | publishing | published | failed
-  objective     String?
+  objective     String?  // denormalized query shortcut — always mirrors spec.objective (set by the draft service)
   spec          Json     // normalized CampaignSpec
   platformSpecs Json?    // resolved per-platform payloads (filled in Phase 2/3)
   createdByAgent Boolean @default(false)

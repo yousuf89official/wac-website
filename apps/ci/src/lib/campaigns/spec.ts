@@ -12,6 +12,33 @@ export const OBJECTIVES = [
   'APP_PROMOTION',
 ] as const;
 
+export const PUBLISH_OBJECT_TYPES = ['campaign', 'adset', 'ad', 'creative'] as const;
+export type PublishObjectType = (typeof PUBLISH_OBJECT_TYPES)[number];
+
+export const PUBLISH_STEPS = [
+  'resolvePayload',
+  'createCampaign',
+  'createAdSet',
+  'createAd',
+  'verify',
+  'activate',
+  'finalize',
+] as const;
+export type PublishStepName = (typeof PUBLISH_STEPS)[number];
+
+export const PUBLISH_JOB_STATUSES = [
+  'queued',
+  'running',
+  'succeeded',
+  'partial',
+  'failed',
+  'rolled_back',
+] as const;
+export type PublishJobStatus = (typeof PUBLISH_JOB_STATUSES)[number];
+
+export const PUBLISH_STATES = ['publishing', 'published', 'partial', 'failed'] as const;
+export type PublishState = (typeof PUBLISH_STATES)[number];
+
 const BudgetSchema = z.object({
   type: z.enum(['daily', 'lifetime']),
   amount: z.number().positive(),

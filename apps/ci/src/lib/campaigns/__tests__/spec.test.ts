@@ -52,4 +52,14 @@ describe('CampaignSpecSchema', () => {
     const bad = { ...valid, creatives: { meta: [], tiktok: [] } };
     expect(() => CampaignSpecSchema.parse(bad)).toThrow();
   });
+
+  it("passes a single-platform spec with only that platform's creative set", () => {
+    const single = { ...valid, platforms: ['meta'], creatives: { meta: ['ad-1'], tiktok: [] } };
+    expect(() => CampaignSpecSchema.parse(single)).not.toThrow();
+  });
+
+  it("rejects a single-platform spec missing that platform's creative", () => {
+    const single = { ...valid, platforms: ['meta'], creatives: { meta: [], tiktok: ['v-1'] } };
+    expect(() => CampaignSpecSchema.parse(single)).toThrow();
+  });
 });

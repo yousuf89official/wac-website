@@ -32,4 +32,9 @@ describe('validateBudget', () => {
     const r = validateBudget({ ...base, amount: 9999 }, { brandDailyCap: null, accountDailyCap: null });
     expect(r.ok).toBe(true);
   });
+
+  it('passes when amount equals the cap (strict greater-than)', () => {
+    const r = validateBudget({ ...base, amount: 100 }, { brandDailyCap: 100, accountDailyCap: null });
+    expect(r.ok).toBe(true);
+  });
 });
