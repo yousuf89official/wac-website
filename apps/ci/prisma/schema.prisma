@@ -82,6 +82,7 @@ model Brand {
   scheduledReports  ScheduledReport[]
   creatives         Creative[]
   campaignTemplates CampaignTemplate[]
+  campaignDrafts    CampaignDraft[]
 }
 
 model Industry {
@@ -127,6 +128,7 @@ model Campaign {
   budgetAllocations BudgetAllocation[]
   alerts            CampaignAlert[]
   rules             CampaignRule[]
+  drafts            CampaignDraft[]
 }
 
 model SubCampaign {
@@ -213,6 +215,9 @@ model CampaignIntegration {
   externalName       String?     // The campaign name on the external platform
   isActive           Boolean     @default(true)
   lastSyncedAt       DateTime?
+  publishState       String?     // null | publishing | published | partial | failed
+  lastPublishError   String?
+  publishedObjects   PublishedObject[]
   createdAt          DateTime    @default(now())
   updatedAt          DateTime    @updatedAt
   integration        Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
@@ -870,4 +875,80 @@ model MediaAnalysis {
   updatedAt   DateTime @updatedAt
   @@index([brandId])
   @@index([createdBy])
+}
+
+// ── Campaign publishing (Meta + TikTok) ───────────────────────────────
+
+model CampaignDraft {
+  id            String   @id @default(cuid())
+  campaignId    String
+  brandId       String
+  status        String   @default("drafting") // drafting | ready | approved | publishing | published | failed
+  objective     String?
+  spec          Json     // normalized CampaignSpec
+  platformSpecs Json?    // resolved per-platform payloads (filled in Phase 2/3)
+  createdByAgent Boolean @default(false)
+  agentThreadRef String?
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  campaign      Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  brand         Brand    @relation(fields: [brandId], references: [id])
+  publishJobs   PublishJob[]
+
+  @@index([campaignId])
+  @@index([brandId])
+}
+
+model PublishedObject {
+  id                    String   @id @default(cuid())
+  campaignIntegrationId String
+  platform              String   // meta | tiktok
+  objectType            String   // campaign | adset | ad | creative
+  externalId            String
+  parentExternalId      String?
+  status                String   @default("PAUSED")
+  raw                   Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  campaignIntegration   CampaignIntegration @relation(fields: [campaignIntegrationId], references: [id], onDelete: Cascade)
+
+  @@index([campaignIntegrationId])
+  @@index([platform, objectType])
+}
+
+model PublishJob {
+  id              String   @id @default(cuid())
+  campaignDraftId String
+  status          String   @default("queued") // queued | running | succeeded | partial | failed | rolled_back
+  workflowRunId   String?
+  error           String?
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  draft           CampaignDraft @relation(fields: [campaignDraftId], references: [id], onDelete: Cascade)
+  steps           PublishStep[]
+
+  @@index([campaignDraftId])
+}
+
+model PublishStep {
+  id         String   @id @default(cuid())
+  jobId      String
+  platform   String   // meta | tiktok
+  step       String   // resolvePayload | createCampaign | createAdSet | createAd | verify | activate | finalize
+  objectType String?  // campaign | adset | ad | creative
+  status     String   @default("pending") // pending | running | done | failed | skipped
+  externalId String?  // idempotency key — set once the object exists
+  request    Json?
+  response   Json?
+  error      String?
+  attempts   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  job        PublishJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([jobId, platform, step])
 }
