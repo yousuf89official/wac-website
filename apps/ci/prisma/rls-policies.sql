@@ -332,3 +332,68 @@ CREATE POLICY "subcampaignchannel_modify" ON "SubCampaignChannel" FOR ALL USING 
 ALTER TABLE "AppConfig" ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "appconfig_select" ON "AppConfig" FOR SELECT USING (true); -- Public read (theme, CMS)
 CREATE POLICY "appconfig_modify" ON "AppConfig" FOR ALL USING (is_app_admin());
+
+-- ============================================================
+-- CAMPAIGN PUBLISHING TABLES
+-- ============================================================
+
+-- CampaignDraft — brand-scoped (owner/admin only, like Integration)
+ALTER TABLE "CampaignDraft" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "campaign_drafts_all" ON "CampaignDraft" FOR ALL
+  USING (
+    is_app_admin()
+    OR EXISTS (
+      SELECT 1 FROM "UserBrand"
+      WHERE "UserBrand"."brandId" = "CampaignDraft"."brandId"
+      AND "UserBrand"."userId" = current_app_user_id()
+      AND "UserBrand"."role" IN ('owner', 'admin')
+    )
+  );
+
+-- PublishJob — inherit access through its draft's brand
+ALTER TABLE "PublishJob" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "publish_jobs_all" ON "PublishJob" FOR ALL
+  USING (
+    is_app_admin()
+    OR EXISTS (
+      SELECT 1 FROM "CampaignDraft" d
+      JOIN "UserBrand" ub ON ub."brandId" = d."brandId"
+      WHERE d."id" = "PublishJob"."campaignDraftId"
+      AND ub."userId" = current_app_user_id()
+      AND ub."role" IN ('owner', 'admin')
+    )
+  );
+
+-- PublishStep — inherit access through its job → draft → brand
+ALTER TABLE "PublishStep" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "publish_steps_all" ON "PublishStep" FOR ALL
+  USING (
+    is_app_admin()
+    OR EXISTS (
+      SELECT 1 FROM "PublishJob" j
+      JOIN "CampaignDraft" d ON d."id" = j."campaignDraftId"
+      JOIN "UserBrand" ub ON ub."brandId" = d."brandId"
+      WHERE j."id" = "PublishStep"."jobId"
+      AND ub."userId" = current_app_user_id()
+      AND ub."role" IN ('owner', 'admin')
+    )
+  );
+
+-- PublishedObject — inherit access through CampaignIntegration → Campaign → brand
+ALTER TABLE "PublishedObject" ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "published_objects_all" ON "PublishedObject" FOR ALL
+  USING (
+    is_app_admin()
+    OR EXISTS (
+      SELECT 1 FROM "CampaignIntegration" ci
+      JOIN "Campaign" c ON c."id" = ci."campaignId"
+      JOIN "UserBrand" ub ON ub."brandId" = c."brandId"
+      WHERE ci."id" = "PublishedObject"."campaignIntegrationId"
+      AND ub."userId" = current_app_user_id()
+      AND ub."role" IN ('owner', 'admin')
+    )
+  );
