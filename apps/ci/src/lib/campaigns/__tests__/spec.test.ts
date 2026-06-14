@@ -37,4 +37,19 @@ describe('CampaignSpecSchema', () => {
     const bad = { ...valid, creatives: { meta: [], tiktok: ['v-9876'] } };
     expect(() => CampaignSpecSchema.parse(bad)).toThrow();
   });
+
+  it('rejects duplicate platforms', () => {
+    const bad = { ...valid, platforms: ['meta', 'meta'] };
+    expect(() => CampaignSpecSchema.parse(bad)).toThrow();
+  });
+
+  it("rejects genders combining 'all' with a specific gender", () => {
+    const bad = { ...valid, audience: { ...valid.audience, genders: ['all', 'male'] } };
+    expect(() => CampaignSpecSchema.parse(bad)).toThrow();
+  });
+
+  it('rejects when both selected platforms are missing creatives', () => {
+    const bad = { ...valid, creatives: { meta: [], tiktok: [] } };
+    expect(() => CampaignSpecSchema.parse(bad)).toThrow();
+  });
 });

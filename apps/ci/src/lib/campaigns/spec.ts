@@ -22,8 +22,14 @@ const AudienceSchema = z
   .object({
     geos: z.array(z.string()).min(1),
     ageMin: z.number().int().min(13).max(65),
+    // 65 = "65+": both Meta and TikTok cap age targeting at 65 (the top bucket is open-ended).
     ageMax: z.number().int().min(13).max(65),
-    genders: z.array(z.enum(['all', 'male', 'female'])).min(1),
+    genders: z
+      .array(z.enum(['all', 'male', 'female']))
+      .min(1)
+      .refine((g) => !g.includes('all') || g.length === 1, {
+        message: "genders cannot combine 'all' with specific genders",
+      }),
     interests: z.array(z.string()).default([]),
   })
   .refine((a) => a.ageMax >= a.ageMin, {
@@ -34,7 +40,12 @@ const AudienceSchema = z
 export const CampaignSpecSchema = z
   .object({
     objective: z.enum(OBJECTIVES),
-    platforms: z.array(z.enum(PLATFORMS)).min(1),
+    platforms: z
+      .array(z.enum(PLATFORMS))
+      .min(1)
+      .refine((p) => new Set(p).size === p.length, {
+        message: 'platforms must be unique',
+      }),
     budget: BudgetSchema,
     schedule: z.object({
       start: z.string().datetime(),
